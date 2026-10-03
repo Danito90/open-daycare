@@ -8,6 +8,27 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
+## Repository
+- The application root is this `open-daycare/` directory; run all npm commands from here.
+- This is a single Next.js App Router app. The main entrypoints are `app/layout.tsx`, `app/page.tsx`, and `app/globals.css`; there are no other application packages or test suites.
+- Use the committed `package-lock.json` with npm (`npm ci` for a clean install).
+
+## Commands
+- `npm run dev` starts the development server at `http://localhost:3000`.
+- `npm run build` creates the production build; `npm start` serves that build.
+- `npx tsc --noEmit` runs the strict TypeScript check; there is no package script for it.
+- `npm run lint` currently fails on the legacy reference fixture `references/pantallas/support.js` (`ReactDOM.render` and assignment to `module`). Treat those as fixture issues unless the fixture is intentionally being modernized.
+
+## Structure
+- `references/pantallas/` and `references/screenshots/` are design/reference assets, not runtime application code. Keep changes to them separate from app implementation changes.
+- The TypeScript alias `@/*` resolves to the app root (`./*`).
+
+
 
 ## MCPs
 - Playwright Screenshot y cualquier cosa relacionada a Playwright tienen que estar en la carpeta de .playwright-mcp.
+- Context7 Usaremos este MCP para traer la documentación actualizada del framework.
+
+## Spec Driven Development
+- /spec Usaremos esta skill para crear las especificaciones.
+- /spec-impl Usaremos este skill para hacer las implementaciones.
