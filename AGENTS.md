@@ -32,3 +32,18 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Spec Driven Development
 - /spec Usaremos esta skill para crear las especificaciones.
 - /spec-impl Usaremos este skill para hacer las implementaciones.
+
+
+## Verificación de specs
+- El agente `spec-verifier` verifica las specs contra el estado real del proyecto.
+- Comprueba los criterios de aceptación mediante inspección del código, build, TypeScript y Playwright cuando corresponda.
+- El comando `/verify-spec` recibe la ruta de una spec como argumento: `/verify-spec specs/01-adaptar-feed-como-home.md`.
+- Si no se proporciona una spec, el comando lista las disponibles en `specs/` y solicita una ruta, número o slug exacto.
+- También se puede invocar directamente con `@spec-verifier` indicando la ruta de la spec.
+- Los artefactos de Playwright se guardan exclusivamente en `.playwright-mcp/`.
+- Después de verificar, marca con `[X]` únicamente los criterios confirmados y deja `[ ]` los no verificados o fallidos.
+
+## Reglas de código
+- Usar código limpio, nombres, funciones, variables en inglés
+
+##
