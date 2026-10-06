@@ -14,7 +14,7 @@ const nunito = Nunito({
 
 export const metadata: Metadata = {
   title: "OpenDayCare · Sala Soles",
-  description: "El feed de la Sala Soles en OpenDayCare.",
+  description: "Gestión y comunicación de la Sala Soles en OpenDayCare.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

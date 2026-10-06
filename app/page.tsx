@@ -1,132 +1,5 @@
-"use client";
-
-import { useState } from "react";
-
-const HomeIcon = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="m3 9.5 9-6.5 9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />
-  </svg>
-);
-
-const PeopleIcon = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <circle cx="9" cy="7" r="3" />
-    <circle cx="17" cy="9" r="2.4" />
-    <path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 20a5 5 0 0 1 5.5-4.9" />
-  </svg>
-);
-
-const BellIcon = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0" />
-  </svg>
-);
-
-const UserIcon = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-    <circle cx="12" cy="7" r="4" />
-  </svg>
-);
-
-const HeartIcon = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21.2l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z" />
-  </svg>
-);
-
-const CommentIcon = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z" />
-  </svg>
-);
-
-const CameraIcon = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-    <circle cx="12" cy="13" r="4" />
-  </svg>
-);
-
-const LogoutIcon = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
-  </svg>
-);
-
-const MegaphoneIcon = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="m3 11 18-5v12L3 14v-3zM11.6 16.8a3 3 0 1 1-5.8-1.6" />
-  </svg>
-);
-
-const ImageIcon = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <rect x="3" y="3" width="18" height="18" rx="2" />
-    <circle cx="9" cy="9" r="2" />
-    <path d="m21 15-3.6-3.6a2 2 0 0 0-2.8 0L6 21" />
-  </svg>
-);
-
-function Navigation({ onNavigate }: { onNavigate?: () => void }) {
-  return (
-    <nav className="navigation" aria-label="Navegación principal">
-      <a className="navigation-link navigation-link-active" href="#feed" onClick={onNavigate}>
-        <HomeIcon />
-        Feed
-      </a>
-      <a className="navigation-link" href="#ninos" onClick={onNavigate}>
-        <PeopleIcon />
-        Niños
-      </a>
-      <a className="navigation-link" href="#avisos" onClick={onNavigate}>
-        <BellIcon />
-        Avisos
-      </a>
-      <a className="navigation-link" href="#cuenta" onClick={onNavigate}>
-        <UserIcon />
-        Mi cuenta
-      </a>
-    </nav>
-  );
-}
-
-function Sidebar() {
-  return (
-    <aside className="sidebar">
-      <a className="brand" href="#home">
-        <span className="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="4" />
-            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
-          </svg>
-        </span>
-        <span>
-          <strong>OpenDayCare</strong>
-          <small>Sala Soles</small>
-        </span>
-      </a>
-
-      <a className="new-post-button" href="#nueva-publicacion">
-        <span aria-hidden="true">+</span>
-        Nueva publicación
-      </a>
-
-      <Navigation />
-
-      <div className="account-summary">
-        <div className="account-avatar">C</div>
-        <div className="account-copy">
-          <strong>Caro Giménez</strong>
-          <small>Maestra · Soles</small>
-        </div>
-        <a className="logout-button" href="#cerrar-sesion" aria-label="Cerrar sesión">
-          <LogoutIcon />
-        </a>
-      </div>
-    </aside>
-  );
-}
+import { AppShell } from "./components/app-shell";
+import { CameraIcon, CommentIcon, HeartIcon, ImageIcon, MegaphoneIcon } from "./components/feed-icons";
 
 function Post({
   avatar,
@@ -152,154 +25,51 @@ function Post({
   image?: boolean;
 }) {
   return (
-    <article className="post-card">
-      <header className="post-header">
-        {avatar ? (
-          <div className="post-avatar post-avatar-blue">{avatar}</div>
-        ) : (
-          <div className="post-avatar post-avatar-announcement">
-            <MegaphoneIcon />
-          </div>
-        )}
-        <div className="post-author">
-          <strong>{author}</strong>
-          <small>{time} · publicado por vos</small>
+    <article className="rounded-[20px] border border-[#ECE0D0] bg-[#FFFDF9] px-[22px] py-5 shadow-[0_4px_16px_-12px_rgba(120,90,60,.5)]">
+      <header className="mb-3.5 flex items-center gap-3">
+        {avatar ? <div className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-[#A9D9E8] font-[family-name:var(--font-fredoka)] text-[17px] font-semibold text-[#1F7A93]">{avatar}</div> : <div className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-[#CCD8F4] text-[#4E72C8]"><MegaphoneIcon className="h-5 w-5" /></div>}
+        <div className="min-w-0 flex-1">
+          <strong className="block font-[family-name:var(--font-fredoka)] text-[16.5px] font-semibold text-[#3F362E]">{author}</strong>
+          <small className="block text-[12.5px] text-[#A89A8B]">{time} · publicado por vos</small>
         </div>
-        <span className={`post-type ${typeClass}`}>
-          <span aria-hidden="true" />
-          {type}
-        </span>
+        <span className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-extrabold tracking-[.5px] ${typeClass}`}><span className="h-2 w-2 rounded-full bg-current" />{type}</span>
       </header>
-      <div className="post-recipient">{recipient}</div>
-      <p className="post-text">{children}</p>
-      {image && (
-        <a className="post-image-placeholder" href="#foto">
-          <ImageIcon />
-          <span>Foto · pintando con témperas</span>
-        </a>
-      )}
-      <footer className="post-actions">
-        <span className="post-likes">
-          <HeartIcon />
-          {likes}
-        </span>
-        <a className="post-comments" href="#detalle-publicacion">
-          <CommentIcon />
-          {comments}
-        </a>
-        <span className="post-actions-spacer" />
-        <a className="post-edit" href="#editar-publicacion">
-          Editar
-        </a>
+      <div className="mb-2.5 text-[12.5px] text-[#A89A8B]">{recipient}</div>
+      <p className="m-0 text-[15.5px] leading-[1.55] text-[#4A4038]">{children}</p>
+      {image && <a className="mt-3.5 flex h-[200px] flex-col items-center justify-center gap-2 rounded-2xl border-[1.5px] border-dashed border-[#DBCBBA] bg-[#F4ECE1] text-[13.5px] text-[#B0A290]" href="#foto"><ImageIcon className="h-[30px] w-[30px] stroke-[1.7]" /><span>Foto · pintando con témperas</span></a>}
+      <footer className="mt-4 flex items-center gap-[18px] border-t border-[#F0E6D8] pt-3.5">
+        <span className="flex items-center gap-1.5 text-sm font-bold text-[#E0654A]"><HeartIcon className="h-[19px] w-[19px] fill-[#E0654A]" />{likes}</span>
+        <a className="flex items-center gap-1.5 text-sm font-bold text-[#94887B]" href="#detalle-publicacion"><CommentIcon className="h-[18px] w-[18px]" />{comments}</a>
+        <span className="flex-1" />
+        <a className="text-sm font-extrabold text-[#C5503A]" href="#editar-publicacion">Editar</a>
       </footer>
     </article>
   );
 }
 
 export default function Home() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const closeMobileMenu = () => setMobileMenuOpen(false);
-
   return (
-    <div className="app-shell" id="home">
-      <Sidebar />
-      <button
-        className="mobile-menu-trigger"
-        type="button"
-        aria-label="Abrir menú"
-        aria-controls="mobile-navigation"
-        aria-expanded={mobileMenuOpen}
-        onClick={() => setMobileMenuOpen(true)}
-      >
-        <span />
-        <span />
-        <span />
-      </button>
-      {mobileMenuOpen && (
-        <>
-          <button
-            className="mobile-menu-overlay"
-            type="button"
-            aria-label="Cerrar menú"
-            onClick={closeMobileMenu}
-          />
-          <aside className="mobile-menu" id="mobile-navigation" aria-label="Menú móvil">
-            <div className="mobile-menu-header">
-              <strong>OpenDayCare</strong>
-              <button
-                className="mobile-menu-close"
-                type="button"
-                aria-label="Cerrar menú"
-                onClick={closeMobileMenu}
-              >
-                ×
-              </button>
-            </div>
-            <Navigation onNavigate={closeMobileMenu} />
-          </aside>
-        </>
-      )}
-      <main className="main-content" id="feed">
-        <div className="feed-container">
-          <header className="feed-heading">
-            <div className="eyebrow">GUARDERÍA · SALA SOLES</div>
-            <h1>Buenas, Caro</h1>
-            <p>12 niños · martes 17 jun</p>
+    <AppShell active="feed">
+      <div className="min-h-screen overflow-y-auto px-[18px] pb-12 pt-[76px] lg:px-10 lg:pb-20 lg:pt-[34px]">
+        <div className="mx-auto w-full max-w-[760px]">
+          <header className="mb-6">
+            <div className="mb-1 text-[12.5px] font-extrabold tracking-[.8px] text-[#D9583C]">GUARDERÍA · SALA SOLES</div>
+            <h1 className="m-0 font-[family-name:var(--font-fredoka)] text-[28px] font-semibold text-[#3F362E] lg:text-[30px]">Buenas, Caro</h1>
+            <p className="mt-1 text-[14.5px] text-[#94887B]">12 niños · martes 17 jun</p>
           </header>
-
-          <a className="composer-prompt" href="#crear-publicacion">
-            <div className="composer-avatar">C</div>
-            <span>Compartí un momento…</span>
-            <span className="composer-camera">
-              <CameraIcon />
-            </span>
+          <a className="mb-6 flex items-center gap-3.5 rounded-[18px] border border-[#ECE0D0] bg-[#FFFDF9] p-3.5 px-[18px] text-[15px] text-[#A89A8B] shadow-[0_4px_14px_-10px_rgba(120,90,60,.4)]" href="#crear-publicacion">
+            <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[#F2937A] font-[family-name:var(--font-fredoka)] font-semibold text-white">C</span>
+            <span className="flex-1">Compartí un momento…</span>
+            <span className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-xl bg-[#FBE3D8] text-[#E0654A]"><CameraIcon className="h-[19px] w-[19px]" /></span>
           </a>
-
-          <div className="feed-divider">
-            <span>PUBLICADO HOY</span>
-          </div>
-
-          <div className="posts-list">
-            <Post
-              avatar="M"
-              author="Mateo"
-              time="14:20"
-              type="LOGRO"
-              typeClass="post-type-success"
-              recipient="Para: familia de Mateo"
-              likes={3}
-              comments={1}
-            >
-              ¡Usó el orinal solito por primera vez! Estaba feliz de contárselo a todos. Un gran paso.
-            </Post>
-            <Post
-              avatar="M"
-              author="Mateo"
-              time="09:40"
-              type="ACTIVIDAD"
-              typeClass="post-type-info"
-              recipient="Para: familia de Mateo"
-              likes={5}
-              comments={2}
-              image
-            >
-              Pintamos con témperas esta mañana. Mateo eligió el azul para todo y se concentró un montón mezclando colores.
-            </Post>
-            <Post
-              author="Anuncio general"
-              time="07:50"
-              type="ANUNCIO"
-              typeClass="post-type-announcement"
-              recipient="Para: toda la sala"
-              likes={8}
-              comments={0}
-            >
-              El viernes salimos al parque por la mañana. Recuerden mandar gorra y una botellita de agua.
-            </Post>
+          <div className="mb-3.5 flex items-center gap-3.5 text-[12.5px] font-extrabold tracking-[.8px] text-[#8A7C6D]"><span>PUBLICADO HOY</span><span className="h-px flex-1 bg-[#E7DAC8]" /></div>
+          <div className="flex flex-col gap-4">
+            <Post avatar="M" author="Mateo" time="14:20" type="LOGRO" typeClass="bg-[#CFEBD8] text-[#3E9B6C]" recipient="Para: familia de Mateo" likes={3} comments={1}>¡Usó el orinal solito por primera vez! Estaba feliz de contárselo a todos. Un gran paso.</Post>
+            <Post avatar="M" author="Mateo" time="09:40" type="ACTIVIDAD" typeClass="bg-[#C7E7F1] text-[#2E89A6]" recipient="Para: familia de Mateo" likes={5} comments={2} image>Pintamos con témperas esta mañana. Mateo eligió el azul para todo y se concentró un montón mezclando colores.</Post>
+            <Post author="Anuncio general" time="07:50" type="ANUNCIO" typeClass="bg-[#CCD8F4] text-[#4E72C8]" recipient="Para: toda la sala" likes={8} comments={0}>El viernes salimos al parque por la mañana. Recuerden mandar gorra y una botellita de agua.</Post>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }
