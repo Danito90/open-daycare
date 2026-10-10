@@ -1,19 +1,34 @@
-import { notFound } from "next/navigation";
+"use client";
+
+import { use } from "react";
+import Link from "next/link";
 import { AppShell } from "../../components/app-shell";
-import { ArrowLeftIcon, ArrowRightIcon, PlusIcon, SunIcon, WarningIcon } from "../../components/icons";
-import { getKid } from "../../data/kids";
+import { ArrowLeftIcon, PlusIcon, SunIcon, WarningIcon } from "../../components/icons";
+import { useKids } from "../../components/kids-provider";
 
-export default async function KidProfilePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const kid = getKid(id);
+export default function KidProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const { kids } = useKids();
+  const kid = kids.find((item) => item.id === id);
 
-  if (!kid) notFound();
+  if (!kid) {
+    return (
+      <AppShell active="kids">
+        <div className="flex min-h-screen items-center justify-center px-[18px] pt-[76px] lg:px-10 lg:pt-[34px]">
+          <div className="rounded-2xl border border-[#ECE0D0] bg-[#FFFDF9] p-8 text-center shadow-[0_4px_14px_-12px_rgba(120,90,60,.5)]">
+            <h1 className="font-[family-name:var(--font-fredoka)] text-2xl font-semibold text-[#3F362E]">Niño no encontrado</h1>
+            <Link className="mt-4 inline-flex text-sm font-extrabold text-[#C5503A]" href="/kids">Volver a Niños</Link>
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell active="kids">
       <div className="min-h-screen overflow-y-auto px-[18px] pb-12 pt-[76px] lg:px-10 lg:pb-20 lg:pt-[34px]">
         <div className="mx-auto w-full max-w-[820px]">
-          <a className="mb-5 flex items-center gap-1.5 text-sm font-bold text-[#94887B] hover:text-[#C5503A]" href="/kids"><ArrowLeftIcon className="h-[18px] w-[18px] stroke-[2.2]" />Volver a Niños</a>
+          <Link className="mb-5 flex items-center gap-1.5 text-sm font-bold text-[#94887B] hover:text-[#C5503A]" href="/kids"><ArrowLeftIcon className="h-[18px] w-[18px] stroke-[2.2]" />Volver a Niños</Link>
           <div className="flex flex-col gap-[26px] lg:flex-row lg:items-start">
             <div className="flex min-w-0 flex-1 flex-col gap-[18px]">
               <div className="flex flex-wrap items-center gap-[18px]">
