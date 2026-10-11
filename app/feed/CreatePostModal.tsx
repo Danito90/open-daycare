@@ -3,8 +3,10 @@
 import { useEffect, useState, type FormEvent, type MouseEvent } from "react";
 import { CameraIcon, ImageIcon } from "../components/feed-icons";
 
+type Recipient = "mateo" | "sofia" | "benjamin" | "all";
+
 export type CreatePostForm = {
-  recipient: "mateo" | "sofia" | "benjamin" | "all" | "";
+  recipients: Recipient[];
   type: "Comida" | "Siesta" | "Actividad" | "Logro" | "Ánimo" | "Foto" | "Anuncio" | "";
   description: string;
 };
@@ -17,11 +19,10 @@ type CreatePostModalProps = {
 
 type FormErrors = Partial<Record<keyof CreatePostForm, string>>;
 
-const recipients = [
+const childRecipients = [
   { value: "mateo", label: "Mateo", initial: "M", background: "#A9D9E8", color: "#1F7A93" },
   { value: "sofia", label: "Sofía", initial: "S", background: "#F4B8CC", color: "#C44A7A" },
   { value: "benjamin", label: "Benjamín", initial: "B", background: "#B9DEC4", color: "#3E8B62" },
-  { value: "all", label: "Toda la sala", initial: "", background: "transparent", color: "inherit" },
 ] as const;
 
 const postTypes = [
@@ -35,12 +36,12 @@ const postTypes = [
 ] as const;
 
 export function CreatePostModal({ open, onClose, onSubmit }: CreatePostModalProps) {
-  const [form, setForm] = useState<CreatePostForm>({ recipient: "", type: "", description: "" });
+  const [form, setForm] = useState<CreatePostForm>({ recipients: [], type: "", description: "" });
   const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {
     if (!open) return;
-    setForm({ recipient: "", type: "", description: "" });
+    setForm({ recipients: [], type: "", description: "" });
     setErrors({});
 
     function handleKeyDown(event: KeyboardEvent) {
@@ -56,6 +57,19 @@ export function CreatePostModal({ open, onClose, onSubmit }: CreatePostModalProp
   function updateField(field: keyof CreatePostForm, value: string) {
     setForm((current) => ({ ...current, [field]: value } as CreatePostForm));
     setErrors((current) => ({ ...current, [field]: undefined }));
+  }
+
+  function toggleRecipient(value: "mateo" | "sofia" | "benjamin") {
+    setForm((current) => ({
+      ...current,
+      recipients: current.recipients.includes(value) ? current.recipients.filter((recipient) => recipient !== value) : [...current.recipients.filter((recipient) => recipient !== "all"), value],
+    }));
+    setErrors((current) => ({ ...current, recipients: undefined }));
+  }
+
+  function toggleAllRecipients() {
+    setForm((current) => ({ ...current, recipients: current.recipients.includes("all") ? [] : ["all"] }));
+    setErrors((current) => ({ ...current, recipients: undefined }));
   }
 
   function handleBackdropClick(event: MouseEvent<HTMLDivElement>) {
@@ -80,21 +94,24 @@ export function CreatePostModal({ open, onClose, onSubmit }: CreatePostModalProp
 
         <form id="create-post-form" className="px-[26px] py-6" onSubmit={handleSubmit} noValidate>
           <FieldLabel>PARA</FieldLabel>
-          <div className="mb-[22px] flex flex-wrap gap-[9px]" role="group" aria-label="Destinatario">
-            {recipients.map((recipient) => (
+          <div className="flex flex-wrap gap-[9px]" role="group" aria-label="Niños destinatarios">
+            {childRecipients.map((recipient) => (
               <button
-                className={`flex items-center gap-2 rounded-full border-[1.5px] px-3.5 py-1.5 text-[14px] font-bold ${form.recipient === recipient.value ? "border-[#3F362E] bg-[#3F362E] text-white" : "border-[#ECE0D0] bg-[#FFFDF9] text-[#6E6359]"}`}
+                className={`flex items-center gap-2 rounded-full border-[1.5px] px-3.5 py-1.5 text-[14px] font-bold ${form.recipients.includes(recipient.value) ? "border-[#3F362E] bg-[#3F362E] text-white" : "border-[#ECE0D0] bg-[#FFFDF9] text-[#6E6359]"}`}
                 key={recipient.value}
                 type="button"
-                aria-pressed={form.recipient === recipient.value}
-                onClick={() => updateField("recipient", recipient.value)}
+                aria-pressed={form.recipients.includes(recipient.value)}
+                onClick={() => toggleRecipient(recipient.value)}
               >
                 {recipient.initial && <span className="flex h-[26px] w-[26px] items-center justify-center rounded-full font-[family-name:var(--font-fredoka)] text-[13px] font-semibold" style={{ backgroundColor: recipient.background, color: recipient.color }}>{recipient.initial}</span>}
                 {recipient.label}
               </button>
             ))}
           </div>
-          <FieldError message={errors.recipient} />
+          <div className="mb-[22px] mt-[9px]" role="group" aria-label="Destinatario de toda la sala">
+            <button className={`rounded-full border-[1.5px] px-4 py-1.5 text-[14px] font-bold ${form.recipients.includes("all") ? "border-[#3F362E] bg-[#3F362E] text-white" : "border-[#ECE0D0] bg-[#FFFDF9] text-[#6E6359]"}`} type="button" aria-pressed={form.recipients.includes("all")} onClick={toggleAllRecipients}>Toda la sala</button>
+          </div>
+          <FieldError message={errors.recipients} />
 
           <FieldLabel>TIPO</FieldLabel>
           <div className="mb-[22px] flex flex-wrap gap-[9px]" role="group" aria-label="Tipo de publicación">
@@ -127,7 +144,7 @@ function FieldError({ message }: { message?: string }) {
 
 function validate(form: CreatePostForm): FormErrors {
   const errors: FormErrors = {};
-  if (!form.recipient) errors.recipient = "Selecciona a quién va dirigida la publicación.";
+  if (form.recipients.length === 0) errors.recipients = "Selecciona al menos un niño o toda la sala.";
   if (!form.type) errors.type = "Selecciona un tipo de publicación.";
   if (!form.description.trim()) errors.description = "Escribe una descripción.";
   return errors;

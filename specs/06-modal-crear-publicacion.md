@@ -1,6 +1,6 @@
 # SPEC 06 — Modal de crear publicación
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 01
 > **Fecha:** 2026-10-11
 > **Objetivo:** Implementar el modal responsive de creación de publicaciones con destinatarios, tipo, descripción, fotos visuales y validación local sin persistir todavía el contenido en el feed.
@@ -15,6 +15,9 @@
 - Mostrar los destinatarios `Mateo`, `Sofía`, `Benjamín` y `Toda la sala`.
 - Mostrar los tipos `Comida`, `Siesta`, `Actividad`, `Logro`, `Ánimo`, `Foto` y `Anuncio`.
 - Iniciar el modal sin destinatario ni tipo seleccionados.
+- Permitir seleccionar varios niños al mismo tiempo.
+- Mantener `Toda la sala` en una fila propia debajo de los botones de los niños.
+- Hacer exclusiva la selección de `Toda la sala`: al seleccionarla se desmarcan los niños y al seleccionar un niño se desmarca `Toda la sala`.
 - Requerir un destinatario, un tipo y una descripción antes de aceptar el formulario.
 - Mostrar errores inline y actualizar cada error al corregir el campo correspondiente.
 - Mostrar un recuadro de imagen de ejemplo y un recuadro `Agregar` únicamente visual.
@@ -41,7 +44,7 @@ El modal usa un formulario local y entrega una estructura de envío al contenedo
 
 ```ts
 type CreatePostForm = {
-  recipient: "mateo" | "sofia" | "benjamin" | "all" | "";
+  recipients: ("mateo" | "sofia" | "benjamin" | "all")[];
   type: "Comida" | "Siesta" | "Actividad" | "Logro" | "Ánimo" | "Foto" | "Anuncio" | "";
   description: string;
 };
@@ -53,7 +56,8 @@ type CreatePostModalProps = {
 };
 ```
 
-- `recipient` se inicia vacío y representa el destinatario seleccionado.
+- `recipients` se inicia como arreglo vacío y representa uno o varios destinatarios seleccionados.
+- `all` es exclusivo: no puede coexistir con destinatarios individuales.
 - `type` se inicia vacío y representa la categoría seleccionada.
 - `description` se inicia vacía y debe contener texto no compuesto únicamente por espacios.
 - Las fotos de la referencia no forman parte de `CreatePostForm`.
@@ -70,37 +74,45 @@ type CreatePostModalProps = {
 
 ## Criterios de aceptación
 
-- [ ] `Compartí un momento…` abre el modal sin cambiar la ruta.
-- [ ] `Nueva publicación` del menú lateral abre el mismo modal.
-- [ ] `Nueva publicación` del menú móvil abre el mismo modal.
-- [ ] El modal reproduce la composición visual principal de `crear-publicacion.dc.html`.
-- [ ] El modal muestra `Mateo`, `Sofía`, `Benjamín` y `Toda la sala` como destinatarios.
-- [ ] El modal muestra `Comida`, `Siesta`, `Actividad`, `Logro`, `Ánimo`, `Foto` y `Anuncio` como tipos.
-- [ ] Al abrir el modal no hay destinatario seleccionado.
-- [ ] Al abrir el modal no hay tipo seleccionado.
-- [ ] La descripción inicia vacía.
-- [ ] Un envío sin destinatario muestra un error inline.
-- [ ] Un envío sin tipo muestra un error inline.
-- [ ] Un envío sin descripción muestra un error inline.
-- [ ] Los errores desaparecen al corregir los campos correspondientes.
-- [ ] La sección `FOTOS` muestra una imagen de ejemplo y un recuadro `Agregar`.
-- [ ] El recuadro `Agregar` no abre un selector ni modifica el formulario.
-- [ ] `Cancelar` cierra el modal y descarta los valores.
-- [ ] `Escape` cierra el modal y descarta los valores.
-- [ ] Clic en el fondo cierra el modal y descarta los valores.
-- [ ] Un formulario válido ejecuta el callback una sola vez.
-- [ ] El modal no inserta publicaciones ni realiza peticiones de red en esta spec.
-- [ ] El modal no presenta desplazamiento horizontal en `390 × 844`.
-- [ ] `npm run build` finaliza correctamente desde `open-daycare/`.
-- [ ] `npx tsc --noEmit` finaliza correctamente desde `open-daycare/`.
-- [ ] Playwright verifica ambos disparadores, validaciones, cierres y responsive.
-- [ ] Las rutas verificadas no generan errores de aplicación en la consola del navegador.
+- [X] `Compartí un momento…` abre el modal sin cambiar la ruta.
+- [X] `Nueva publicación` del menú lateral abre el mismo modal.
+- [X] `Nueva publicación` del menú móvil abre el mismo modal.
+- [X] El modal reproduce la composición visual principal de `crear-publicacion.dc.html`.
+- [X] El modal muestra `Mateo`, `Sofía`, `Benjamín` y `Toda la sala` como destinatarios.
+- [X] El modal muestra `Comida`, `Siesta`, `Actividad`, `Logro`, `Ánimo`, `Foto` y `Anuncio` como tipos.
+- [X] Al abrir el modal no hay destinatario seleccionado.
+- [X] Se pueden seleccionar `Mateo`, `Sofía` y `Benjamín` simultáneamente.
+- [X] `Toda la sala` aparece en una fila propia debajo de los botones de los niños.
+- [X] Al seleccionar `Toda la sala`, los botones de los niños quedan desmarcados.
+- [X] Al seleccionar un niño mientras `Toda la sala` está marcada, `Toda la sala` queda desmarcada.
+- [X] Al seleccionar varios niños, `Toda la sala` permanece desmarcada.
+- [X] Al abrir el modal no hay tipo seleccionado.
+- [X] La descripción inicia vacía.
+- [X] Un envío sin destinatario muestra un error inline.
+- [X] Un envío sin tipo muestra un error inline.
+- [X] Un envío sin descripción muestra un error inline.
+- [X] Los errores desaparecen al corregir los campos correspondientes.
+- [X] La sección `FOTOS` muestra una imagen de ejemplo y un recuadro `Agregar`.
+- [X] El recuadro `Agregar` no abre un selector ni modifica el formulario.
+- [X] `Cancelar` cierra el modal y descarta los valores.
+- [X] `Escape` cierra el modal y descarta los valores.
+- [X] Clic en el fondo cierra el modal y descarta los valores.
+- [X] Un formulario válido ejecuta el callback una sola vez.
+- [X] El modal no inserta publicaciones ni realiza peticiones de red en esta spec.
+- [X] El modal no presenta desplazamiento horizontal en `390 × 844`.
+- [X] `npm run build` finaliza correctamente desde `open-daycare/`.
+- [X] `npx tsc --noEmit` finaliza correctamente desde `open-daycare/`.
+- [X] Playwright verifica ambos disparadores, validaciones, cierres y responsive.
+- [X] Las rutas verificadas no generan errores de aplicación en la consola del navegador.
 
 ## Decisiones tomadas y descartadas
 
 - **Sí:** Usar un único modal compartido por la tarjeta del feed y los botones de navegación. Evita duplicar formularios y mantiene una experiencia consistente.
 - **No:** Crear una ruta independiente para crear publicaciones. La referencia define una tarjeta contenida y el flujo pertenece al feed.
 - **Sí:** Iniciar destinatario y tipo sin selección. Son datos obligatorios y así se evita publicar con valores implícitos.
+- **Sí:** Representar los destinatarios como una colección. Una publicación puede dirigirse a varios niños.
+- **Sí:** Mantener `Toda la sala` como opción exclusiva. Evita estados redundantes en los que se mezclen la sala completa y destinatarios individuales.
+- **Sí:** Colocar `Toda la sala` debajo de los niños. Hace visible la diferencia entre selección individual y selección global.
 - **No:** Preseleccionar `Mateo` o `Actividad`. Esos valores aparecen en la referencia como ejemplo, no como una elección confirmada.
 - **Sí:** Mantener la sección de fotos como presentación. La carga de archivos requiere decisiones de almacenamiento propias.
 - **No:** Implementar selector o subida de imágenes. Queda fuera de alcance y pertenece a otra spec.
