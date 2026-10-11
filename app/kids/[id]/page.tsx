@@ -2,13 +2,16 @@
 
 import { use } from "react";
 import Link from "next/link";
+import { useState } from "react";
 import { AppShell } from "../../components/app-shell";
 import { ArrowLeftIcon, PlusIcon, SunIcon, WarningIcon } from "../../components/icons";
 import { useKids } from "../../components/kids-provider";
+import { LinkParentModal } from "../LinkParentModal";
 
 export default function KidProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { kids } = useKids();
+  const { kids, addParent } = useKids();
+  const [isLinkParentModalOpen, setIsLinkParentModalOpen] = useState(false);
   const kid = kids.find((item) => item.id === id);
 
   if (!kid) {
@@ -47,18 +50,19 @@ export default function KidProfilePage({ params }: { params: Promise<{ id: strin
               </div>
             </div>
             <div className="flex w-full flex-none flex-col gap-3.5 lg:w-[300px]">
-              <a className="flex w-full items-center justify-center gap-2 rounded-[14px] bg-[#3F362E] p-[13px] text-[15px] font-extrabold text-white" href="#resumen"><SunIcon className="h-[18px] w-[18px]" />Resumen del día</a>
+              <a className="flex w-full items-center justify-center gap-2 rounded-[14px] bg-[#3F362E] p-[13px] text-[15px] font-extrabold !text-white" href="#resumen"><SunIcon className="h-[18px] w-[18px] !stroke-white" />Resumen del día</a>
               <div className="rounded-2xl border border-[#ECE0D0] bg-[#FFFDF9] p-4 px-[18px]">
                 <div className="mb-3.5 text-[12.5px] font-extrabold tracking-[.8px] text-[#8A7C6D]">PADRES VINCULADOS</div>
                 <div className="flex flex-col gap-3.5">
                   {kid.parents.map((parent) => <ParentRow key={parent.name} parent={parent} />)}
-                  <a className="flex items-center gap-3 pt-2 text-[14.5px] font-extrabold text-[#C5503A]" href="#vincular"><span className="flex h-10 w-10 flex-none items-center justify-center rounded-full border-[1.5px] border-dashed border-[#D8CBBA] text-[#B0A290]"><PlusIcon className="h-[18px] w-[18px] stroke-[2.2]" /></span>Vincular otro padre</a>
+                  <button className="flex items-center gap-3 pt-2 text-left text-[14.5px] font-extrabold text-[#C5503A]" type="button" onClick={() => setIsLinkParentModalOpen(true)}><span className="flex h-10 w-10 flex-none items-center justify-center rounded-full border-[1.5px] border-dashed border-[#D8CBBA] text-[#B0A290]"><PlusIcon className="h-[18px] w-[18px] stroke-[2.2]" /></span>Vincular otro padre</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <LinkParentModal childName={kid.name} open={isLinkParentModalOpen} onClose={() => setIsLinkParentModalOpen(false)} onSubmit={(form) => { addParent(kid.id, form); setIsLinkParentModalOpen(false); }} />
     </AppShell>
   );
 }

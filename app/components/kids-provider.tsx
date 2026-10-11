@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
-import { kids as initialKids, type Kid } from "../data/kids";
+import { kids as initialKids, type Kid, type ParentLink } from "../data/kids";
 
 export type AddKidForm = {
   name: string;
@@ -11,9 +11,16 @@ export type AddKidForm = {
   medicalNotes: string;
 };
 
+export type LinkParentForm = {
+  name: string;
+  email: string;
+  relationship: "Mamá" | "Papá" | "Tutor/a" | "";
+};
+
 type KidsContextValue = {
   kids: Kid[];
   addKid: (form: AddKidForm) => Kid;
+  addParent: (kidId: string, form: LinkParentForm) => void;
 };
 
 const KidsContext = createContext<KidsContextValue | null>(null);
@@ -48,7 +55,19 @@ export function KidsProvider({ children }: { children: ReactNode }) {
     return newKid;
   }
 
-  const value = useMemo(() => ({ kids, addKid }), [kids]);
+  function addParent(kidId: string, form: LinkParentForm) {
+    const parent: ParentLink = {
+      name: form.name.trim(),
+      relationship: form.relationship,
+      status: "pending",
+      initial: form.name.trim().charAt(0).toUpperCase(),
+      avatarBackground: "#A9C7E8",
+    };
+
+    setKids((currentKids) => currentKids.map((kid) => kid.id === kidId ? { ...kid, parents: [...kid.parents, parent] } : kid));
+  }
+
+  const value = useMemo(() => ({ kids, addKid, addParent }), [kids]);
 
   return <KidsContext.Provider value={value}>{children}</KidsContext.Provider>;
 }
