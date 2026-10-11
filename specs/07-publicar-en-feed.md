@@ -14,7 +14,7 @@
 - Conectar el callback válido de `CreatePostModal` de SPEC 06 con el proveedor.
 - Crear una publicación con autor fijo `Caro Giménez`.
 - Usar la hora local de creación con el formato visual existente.
-- Convertir el destinatario seleccionado en el texto visible del feed.
+- Convertir los destinatarios seleccionados en el texto visible del feed.
 - Mantener el tipo seleccionado y su estilo visual correspondiente.
 - Mostrar la descripción ingresada como contenido de la nueva tarjeta.
 - Insertar la nueva publicación al inicio de la lista del feed.
@@ -48,7 +48,7 @@ type FeedPost = {
   avatar: "C";
   time: string;
   type: PostType;
-  recipient: PostRecipient;
+  recipients: PostRecipient[];
   description: string;
   likes: number;
   comments: number;
@@ -64,7 +64,9 @@ type FeedContextValue = {
 - `posts` inicia con el contenido estático actual del feed convertido al modelo compartido.
 - `id` se genera localmente y solo debe ser único durante la sesión.
 - `time` usa la hora local de creación con formato `HH:mm`.
-- `recipient` se muestra como `Para: Mateo`, `Para: Sofía`, `Para: Benjamín` o `Para: toda la sala`.
+- `recipients` se muestra como `Para: Mateo`, `Para: Sofía`, `Para: Benjamín`, `Para: Mateo, Sofía y Benjamín` o `Para: toda la sala`.
+- Cuando hay varios niños, la lista visible separa los dos primeros con coma y el último con `y`.
+- `all` es exclusivo y se muestra únicamente como `Para: toda la sala`.
 - `type` conserva una clase visual definida para cada categoría.
 - `likes` y `comments` inician en `0` para cada publicación nueva.
 - `image` permanece en `false` porque las fotos son visuales y no se cargan en esta spec.
@@ -81,31 +83,33 @@ type FeedContextValue = {
 
 ## Criterios de aceptación
 
-- [ ] El feed conserva las publicaciones iniciales al cargar.
-- [ ] `FeedProvider` mantiene las publicaciones nuevas en memoria durante la sesión.
-- [ ] Una publicación válida usa autor `Caro Giménez`.
-- [ ] Una publicación válida muestra la hora local de creación.
-- [ ] El destinatario aparece como `Para: Mateo`, `Para: Sofía`, `Para: Benjamín` o `Para: toda la sala` según la selección.
-- [ ] El tipo de la nueva publicación coincide con la selección del modal.
-- [ ] El tipo nuevo usa el estilo visual correspondiente a su categoría.
-- [ ] La descripción publicada coincide con el texto ingresado.
-- [ ] La nueva publicación aparece al inicio del feed.
-- [ ] La nueva publicación inicia con 0 likes.
-- [ ] La nueva publicación inicia con 0 comentarios.
-- [ ] El modal se cierra después de una publicación válida.
-- [ ] Cancelar no agrega una publicación.
-- [ ] Escape no agrega una publicación.
-- [ ] Clic en el fondo no agrega una publicación.
-- [ ] `Compartí un momento…` y `Nueva publicación` abren el mismo flujo.
-- [ ] Los datos publicados son visibles sin realizar peticiones de red.
-- [ ] Recargar la aplicación elimina las publicaciones creadas durante la sesión.
-- [ ] `/kids` y `/kids/[id]` conservan su contenido y navegación existente.
-- [ ] El feed no presenta desplazamiento horizontal en `390 × 844`.
-- [ ] El flujo conserva la composición visual principal del feed en desktop.
-- [ ] `npm run build` finaliza correctamente desde `open-daycare/`.
-- [ ] `npx tsc --noEmit` finaliza correctamente desde `open-daycare/`.
-- [ ] Playwright verifica publicación, orden, contenido, cancelación, reinicio y responsive.
-- [ ] Las rutas verificadas no generan errores de aplicación en la consola del navegador.
+- [X] El feed conserva las publicaciones iniciales al cargar.
+- [X] `FeedProvider` mantiene las publicaciones nuevas en memoria durante la sesión.
+- [X] Una publicación válida usa autor `Caro Giménez`.
+- [X] Una publicación válida muestra la hora local de creación.
+- [X] Un destinatario aparece como `Para: Mateo`, `Para: Sofía` o `Para: Benjamín`.
+- [X] Varios destinatarios aparecen como `Para: Mateo, Sofía y Benjamín` con la conjunción antes del último nombre.
+- [X] `Toda la sala` aparece como `Para: toda la sala` y no se mezcla con nombres individuales.
+- [X] El tipo de la nueva publicación coincide con la selección del modal.
+- [X] El tipo nuevo usa el estilo visual correspondiente a su categoría.
+- [X] La descripción publicada coincide con el texto ingresado.
+- [X] La nueva publicación aparece al inicio del feed.
+- [X] La nueva publicación inicia con 0 likes.
+- [X] La nueva publicación inicia con 0 comentarios.
+- [X] El modal se cierra después de una publicación válida.
+- [X] Cancelar no agrega una publicación.
+- [X] Escape no agrega una publicación.
+- [X] Clic en el fondo no agrega una publicación.
+- [X] `Compartí un momento…` y `Nueva publicación` abren el mismo flujo.
+- [X] Los datos publicados son visibles sin realizar peticiones de red.
+- [X] Recargar la aplicación elimina las publicaciones creadas durante la sesión.
+- [X] `/kids` y `/kids/[id]` conservan su contenido y navegación existente.
+- [X] El feed no presenta desplazamiento horizontal en `390 × 844`.
+- [X] El flujo conserva la composición visual principal del feed en desktop.
+- [X] `npm run build` finaliza correctamente desde `open-daycare/`.
+- [X] `npx tsc --noEmit` finaliza correctamente desde `open-daycare/`.
+- [X] Playwright verifica publicación, orden, contenido, cancelación, reinicio y responsive.
+- [X] Las rutas verificadas no generan errores de aplicación en la consola del navegador.
 
 ## Decisiones tomadas y descartadas
 
@@ -122,6 +126,8 @@ type FeedContextValue = {
 - **Sí:** Mantener `image: false` en las publicaciones nuevas. La sección de fotos de SPEC 06 es únicamente visual.
 - **No:** Asociar archivos o URLs de imágenes. La carga de fotos queda fuera de alcance.
 - **Sí:** Depender de SPEC 06. El proveedor recibe el contrato de formulario que define el modal y evita duplicar validaciones.
+- **Sí:** Mostrar varios destinatarios como una lista natural con `y` antes del último nombre. Mantiene legibilidad sin crear etiquetas nuevas.
+- **No:** Mostrar únicamente el primer destinatario. Ocultaría una selección válida del formulario.
 
 ## Riesgos
 

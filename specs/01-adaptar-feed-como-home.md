@@ -44,7 +44,7 @@ This feature introduces no new data structures. It renders the static content de
 - [X] Visiting `/` renders the OpenDayCare feed instead of the default Next.js starter screen.
 - [X] The desktop home includes the sidebar, brand block, new-publication call to action, navigation items, user block, greeting, composer prompt, section divider, and three feed cards from the reference.
 - [X] The visible static copy matches the reference, including “OpenDayCare”, “Sala Soles”, “Caro Giménez”, “Buenas, Caro”, “Mateo”, publication texts, labels, counters, and date.
-- [ ] The desktop color palette, typography, borders, radii, shadows, spacing, and inline icons visually match `open-daycare/references/pantallas/feed.dc.html`.
+- [X] The desktop color palette, typography, borders, radii, shadows, spacing, and inline icons visually match `open-daycare/references/pantallas/feed.dc.html`.
 - [X] `Fredoka` and `Nunito` are loaded from Google Fonts and applied to the same text roles as in the reference.
 - [X] At viewport `390 × 844`, the desktop sidebar is replaced by a hamburger trigger and the feed remains readable without horizontal overflow.
 - [X] Activating the hamburger trigger opens a lateral overlay panel containing the navigation.
@@ -53,7 +53,7 @@ This feature introduces no new data structures. It renders the static content de
 - [X] The route and browser console load without application errors.
 - [X] `npm run build` completes successfully from `open-daycare/`.
 - [X] `npx tsc --noEmit` completes successfully from `open-daycare/`.
-- [ ] A Playwright capture at desktop size and at `390 × 844` confirms the rendered home against the reference, with artifacts stored under `.playwright-mcp/`.
+- [X] A Playwright capture at desktop size and at `390 × 844` confirms the rendered home against the reference, with artifacts stored under `.playwright-mcp/`.
 
 ## Decisions
 
