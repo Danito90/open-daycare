@@ -1,4 +1,5 @@
 {
+  "$schema": "https://opencode.ai/config.json",
   "command": {
     "spec": {
       "description": "Crea especificaciones de pantallas y funcionalidades",
