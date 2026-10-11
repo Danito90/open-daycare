@@ -1,5 +1,9 @@
+"use client";
+
+import { useState } from "react";
 import { AppShell } from "./components/app-shell";
 import { CameraIcon, CommentIcon, HeartIcon, ImageIcon, MegaphoneIcon } from "./components/feed-icons";
+import { CreatePostModal, type CreatePostForm } from "./feed/CreatePostModal";
 
 function Post({
   avatar,
@@ -48,8 +52,14 @@ function Post({
 }
 
 export default function Home() {
+  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
+
+  function handleSubmit(_form: CreatePostForm) {
+    setIsCreatePostOpen(false);
+  }
+
   return (
-    <AppShell active="feed">
+    <AppShell active="feed" onNewPublication={() => setIsCreatePostOpen(true)}>
       <div className="min-h-screen overflow-y-auto px-[18px] pb-12 pt-[76px] lg:px-10 lg:pb-20 lg:pt-[34px]">
         <div className="mx-auto w-full max-w-[760px]">
           <header className="mb-6">
@@ -57,11 +67,11 @@ export default function Home() {
             <h1 className="m-0 font-[family-name:var(--font-fredoka)] text-[28px] font-semibold text-[#3F362E] lg:text-[30px]">Buenas, Caro</h1>
             <p className="mt-1 text-[14.5px] text-[#94887B]">12 niños · martes 17 jun</p>
           </header>
-          <a className="mb-6 flex items-center gap-3.5 rounded-[18px] border border-[#ECE0D0] bg-[#FFFDF9] p-3.5 px-[18px] text-[15px] text-[#A89A8B] shadow-[0_4px_14px_-10px_rgba(120,90,60,.4)]" href="#crear-publicacion">
+          <button className="mb-6 flex w-full items-center gap-3.5 rounded-[18px] border border-[#ECE0D0] bg-[#FFFDF9] p-3.5 px-[18px] text-left text-[15px] text-[#A89A8B] shadow-[0_4px_14px_-10px_rgba(120,90,60,.4)]" type="button" onClick={() => setIsCreatePostOpen(true)}>
             <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[#F2937A] font-[family-name:var(--font-fredoka)] font-semibold text-white">C</span>
             <span className="flex-1">Compartí un momento…</span>
             <span className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-xl bg-[#FBE3D8] text-[#E0654A]"><CameraIcon className="h-[19px] w-[19px]" /></span>
-          </a>
+          </button>
           <div className="mb-3.5 flex items-center gap-3.5 text-[12.5px] font-extrabold tracking-[.8px] text-[#8A7C6D]"><span>PUBLICADO HOY</span><span className="h-px flex-1 bg-[#E7DAC8]" /></div>
           <div className="flex flex-col gap-4">
             <Post avatar="M" author="Mateo" time="14:20" type="LOGRO" typeClass="bg-[#CFEBD8] text-[#3E9B6C]" recipient="Para: familia de Mateo" likes={3} comments={1}>¡Usó el orinal solito por primera vez! Estaba feliz de contárselo a todos. Un gran paso.</Post>
@@ -70,6 +80,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+      <CreatePostModal open={isCreatePostOpen} onClose={() => setIsCreatePostOpen(false)} onSubmit={handleSubmit} />
     </AppShell>
   );
 }
