@@ -46,14 +46,18 @@ function Brand() {
   );
 }
 
-function Sidebar({ active }: { active: NavigationKey }) {
+function CreatePublicationTrigger({ onClick }: { onClick?: () => void }) {
+  const className = "mb-[18px] flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-b from-[#F4977E] to-[#EE8164] p-3 text-[14.5px] font-extrabold text-white shadow-[0_8px_18px_-8px_rgba(238,129,100,.75)]";
+  const content = <><PlusIcon className="h-[17px] w-[17px] stroke-[2.4]" />Nueva publicación</>;
+
+  return onClick ? <button className={className} type="button" onClick={onClick}>{content}</button> : <a className={className} href="#nueva-publicacion">{content}</a>;
+}
+
+function Sidebar({ active, onNewPublication }: { active: NavigationKey; onNewPublication?: () => void }) {
   return (
     <aside className="sticky top-0 hidden h-screen w-[248px] flex-none flex-col border-r border-[#ECE0D0] bg-[#FFFDF9] p-6 pb-4 lg:flex">
       <Brand />
-      <a className="mb-[18px] flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-b from-[#F4977E] to-[#EE8164] p-3 text-[14.5px] font-extrabold text-white shadow-[0_8px_18px_-8px_rgba(238,129,100,.75)]" href="#nueva-publicacion">
-        <PlusIcon className="h-[17px] w-[17px] stroke-[2.4]" />
-        Nueva publicación
-      </a>
+      <CreatePublicationTrigger onClick={onNewPublication} />
       <Navigation active={active} />
       <div className="mt-[10px] flex items-center gap-[11px] border-t border-[#ECE0D0] px-2 pb-1 pt-5">
         <div className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-full bg-[#F2937A] font-[family-name:var(--font-fredoka)] text-base font-semibold text-white">C</div>
@@ -69,13 +73,13 @@ function Sidebar({ active }: { active: NavigationKey }) {
   );
 }
 
-export function AppShell({ active, children }: { active: NavigationKey; children: React.ReactNode }) {
+export function AppShell({ active, children, onNewPublication }: { active: NavigationKey; children: React.ReactNode; onNewPublication?: () => void }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
     <div className="flex min-h-screen bg-[#F6ECDF]">
-      <Sidebar active={active} />
+      <Sidebar active={active} onNewPublication={onNewPublication} />
       <button
         className="fixed left-[18px] top-[18px] z-20 flex h-[42px] w-[42px] items-center justify-center rounded-[13px] border border-[#ECE0D0] bg-[#FFFDF9] text-[#D9583C] shadow-[0_5px_16px_-10px_rgba(120,90,60,.6)] lg:hidden"
         type="button"
@@ -96,10 +100,7 @@ export function AppShell({ active, children }: { active: NavigationKey; children
                 <CloseIcon className="h-4 w-4" />
               </button>
             </div>
-            <a className="mb-[18px] flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-b from-[#F4977E] to-[#EE8164] p-3 text-[14.5px] font-extrabold text-white" href="#nueva-publicacion" onClick={closeMobileMenu}>
-              <PlusIcon className="h-[17px] w-[17px] stroke-[2.4]" />
-              Nueva publicación
-            </a>
+            <div onClick={closeMobileMenu}><CreatePublicationTrigger onClick={onNewPublication} /></div>
             <Navigation active={active} onNavigate={closeMobileMenu} />
           </aside>
         </>
