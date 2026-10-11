@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { BellIcon, CloseIcon, HomeIcon, LogoutIcon, MenuIcon, PeopleIcon, PlusIcon, SunIcon, UserIcon } from "./icons";
 
 type NavigationKey = "feed" | "kids" | "notices" | "account";
@@ -16,7 +17,7 @@ function Navigation({ active, onNavigate }: { active: NavigationKey; onNavigate?
   return (
     <nav className="flex flex-1 flex-col gap-1" aria-label="Navegación principal">
       {navigationItems.map(({ key, label, href, Icon }) => (
-        <a
+        <Link
           className={`flex items-center gap-3 rounded-xl px-3 py-[11px] text-[14.5px] transition-colors ${
             key === active ? "bg-[#FBE3D8] font-extrabold text-[#D9583C]" : "font-semibold text-[#6E6359] hover:bg-[#F6ECDF]"
           }`}
@@ -26,7 +27,7 @@ function Navigation({ active, onNavigate }: { active: NavigationKey; onNavigate?
         >
           <Icon className="h-[19px] w-[19px]" />
           {label}
-        </a>
+        </Link>
       ))}
     </nav>
   );
@@ -34,7 +35,7 @@ function Navigation({ active, onNavigate }: { active: NavigationKey; onNavigate?
 
 function Brand() {
   return (
-    <a className="flex items-center gap-[11px] px-2 pb-[22px] pt-1" href="/">
+    <Link className="flex items-center gap-[11px] px-2 pb-[22px] pt-1" href="/">
       <span className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-xl bg-gradient-to-br from-[#F8C3A8] to-[#F2937A] text-white">
         <SunIcon className="h-[21px] w-[21px] stroke-[2.2]" />
       </span>
@@ -42,7 +43,7 @@ function Brand() {
         <strong className="block font-[family-name:var(--font-fredoka)] text-[17px] font-semibold leading-none text-[#3F362E]">OpenDayCare</strong>
         <small className="mt-0.5 block text-[11.5px] text-[#A89A8B]">Sala Soles</small>
       </span>
-    </a>
+    </Link>
   );
 }
 
@@ -55,7 +56,7 @@ function CreatePublicationTrigger({ onClick }: { onClick?: () => void }) {
 
 function Sidebar({ active, onNewPublication }: { active: NavigationKey; onNewPublication?: () => void }) {
   return (
-    <aside className="sticky top-0 hidden h-screen w-[248px] flex-none flex-col border-r border-[#ECE0D0] bg-[#FFFDF9] p-6 pb-4 lg:flex">
+    <aside className="sticky top-0 hidden h-screen w-[248px] flex-none flex-col border-r border-[#ECE0D0] bg-[#FFFDF9] px-4 pb-4 pt-6 md:flex">
       <Brand />
       <CreatePublicationTrigger onClick={onNewPublication} />
       <Navigation active={active} />
@@ -81,7 +82,7 @@ export function AppShell({ active, children, onNewPublication }: { active: Navig
     <div className="flex min-h-screen bg-[#F6ECDF]">
       <Sidebar active={active} onNewPublication={onNewPublication} />
       <button
-        className="fixed left-[18px] top-[18px] z-20 flex h-[42px] w-[42px] items-center justify-center rounded-[13px] border border-[#ECE0D0] bg-[#FFFDF9] text-[#D9583C] shadow-[0_5px_16px_-10px_rgba(120,90,60,.6)] lg:hidden"
+        className="fixed left-[18px] top-[18px] z-20 flex h-[42px] w-[42px] items-center justify-center rounded-[13px] border border-[#ECE0D0] bg-[#FFFDF9] text-[#D9583C] shadow-[0_5px_16px_-10px_rgba(120,90,60,.6)] md:hidden"
         type="button"
         aria-label="Abrir menú"
         aria-controls="mobile-navigation"

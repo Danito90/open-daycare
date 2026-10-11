@@ -2,6 +2,7 @@
 
 import { use } from "react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { useState } from "react";
 import { AppShell } from "../../components/app-shell";
 import { ArrowLeftIcon, PlusIcon, SunIcon, WarningIcon } from "../../components/icons";
@@ -15,16 +16,7 @@ export default function KidProfilePage({ params }: { params: Promise<{ id: strin
   const kid = kids.find((item) => item.id === id);
 
   if (!kid) {
-    return (
-      <AppShell active="kids">
-        <div className="flex min-h-screen items-center justify-center px-[18px] pt-[76px] lg:px-10 lg:pt-[34px]">
-          <div className="rounded-2xl border border-[#ECE0D0] bg-[#FFFDF9] p-8 text-center shadow-[0_4px_14px_-12px_rgba(120,90,60,.5)]">
-            <h1 className="font-[family-name:var(--font-fredoka)] text-2xl font-semibold text-[#3F362E]">Niño no encontrado</h1>
-            <Link className="mt-4 inline-flex text-sm font-extrabold text-[#C5503A]" href="/kids">Volver a Niños</Link>
-          </div>
-        </div>
-      </AppShell>
-    );
+    notFound();
   }
 
   return (
