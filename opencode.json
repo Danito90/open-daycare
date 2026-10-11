@@ -12,6 +12,7 @@
   },
   "permission": {
     "external_directory": {
+      "~/.config/opencode/*": "allow",
       "/tmp/**": "allow"
     },
     "bash": "allow"
