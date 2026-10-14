@@ -1,5 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
+
+  "lsp": true,
+
   "command": {
     "spec": {
       "description": "Crea especificaciones de pantallas y funcionalidades",
@@ -10,6 +13,14 @@
       "template": "Carga y sigue la skill spec-impl en .agents/skills/spec-impl/SKILL.md.\n\nFeature: $ARGUMENTS"
     }
   },
+
+  "references": {
+    "docs": {
+      "path": "../07-DB-Schema",
+      "description": "Schema de la base de datos, tablas, columnas y referencias a crear. esto no esta implementado en la base de datos, solo es para referenciar."
+    }
+  },
+
   "permission": {
     "external_directory": {
       "~/.config/opencode/*": "allow",
