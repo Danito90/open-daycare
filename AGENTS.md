@@ -22,12 +22,21 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Structure
 - `references/pantallas/` and `references/screenshots/` are design/reference assets, not runtime application code. Keep changes to them separate from app implementation changes.
 - The TypeScript alias `@/*` resolves to the app root (`./*`).
-
-
+- `../07-DB-Schema` (referencia `docs` en `opencode.json`) describe tablas, columnas y relaciones previstas; no representa el estado implementado de la base de datos.
 
 ## MCPs
 - Playwright Screenshot y cualquier cosa relacionada a Playwright tienen que estar en la carpeta de .playwright-mcp.
 - Context7 Usaremos este MCP para traer la documentación actualizada del framework.
+- Supabase MCP permite consultar documentación, inspeccionar el proyecto y ejecutar operaciones de base de datos. Antes de modificar el esquema, inspecciona las tablas existentes; para DDL usa migraciones y para diagnósticos consulta logs y avisos de seguridad/rendimiento.
+
+## Supabase
+- El proyecto aún no incluye clientes de Supabase en `package.json` ni un esquema local implementado en este repositorio. No asumir que el esquema de referencia ya existe en la base de datos: comprobar el estado real antes de implementarlo.
+- `.env-template` documenta `SUPABASE_DB_PASSWORD`; mantener contraseñas y claves secretas fuera del repositorio y del código cliente. Para integraciones públicas usar claves publicables, nunca `service_role`.
+- Priorizar desarrollo y pruebas locales antes de aplicar cambios al proyecto remoto. Habilitar RLS y definir políticas acordes al modelo de acceso para tablas expuestas mediante la API.
+
+## Skills instaladas
+- `.agents/skills/supabase/SKILL.md`: cargar para tareas de Supabase (Auth, Database, Storage, Edge Functions, CLI, MCP, integración o diagnóstico). Consultar la documentación vigente antes de implementar y verificar los cambios.
+- `.agents/skills/supabase-postgres-best-practices/SKILL.md`: cargar antes de diseñar o cambiar esquemas, migraciones, SQL, políticas RLS, índices, funciones o datos en Postgres; también al diagnosticar rendimiento, bloqueos o visibilidad de filas.
 
 ## Spec Driven Development
 - /spec Usaremos esta skill para crear las especificaciones.
@@ -45,5 +54,3 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Reglas de código
 - Usar código limpio, nombres, funciones, variables en inglés
-
-##
