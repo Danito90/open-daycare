@@ -1,6 +1,6 @@
 # SPEC 08 — Primera migración de daycares
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Fecha:** 2026-10-20
 > **Objetivo:** Crear `public.daycares` mediante una migración versionada de Supabase, aplicarla al proyecto remoto y verificar allí la tabla y su guardería inicial.
 
