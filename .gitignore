@@ -43,3 +43,9 @@ next-env.d.ts
 
 
 .playwright-mcp/*
+
+# Supabase
+supabase/*
+!supabase/.gitignore
+!supabase/config.toml
+!supabase/migrations/
