@@ -13,9 +13,15 @@
       "template": "Carga y sigue la skill spec-impl en .agents/skills/spec-impl/SKILL.md.\n\nFeature: $ARGUMENTS"
     }
   },
-
+  "mcp": {
+    "supabase": {
+      "type": "remote",
+      "url": "https://mcp.supabase.com/mcp?project_ref=jrkpnkmryvhistfvmoqz&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching",
+      "enabled": true
+    }
+  },
   "references": {
-    "docs": {
+    "db-schema": {
       "path": "../07-DB-Schema",
       "description": "Schema de la base de datos, tablas, columnas y referencias a crear. esto no esta implementado en la base de datos, solo es para referenciar."
     }
