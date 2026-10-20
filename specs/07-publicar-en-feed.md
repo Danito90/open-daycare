@@ -1,6 +1,6 @@
 # SPEC 07 — Publicar y actualizar el feed
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 06
 > **Fecha:** 2026-10-11
 > **Objetivo:** Conectar el formulario válido de creación de publicaciones con un estado cliente en memoria que inserte la nueva publicación al inicio del feed y se reinicie al recargar.
