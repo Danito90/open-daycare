@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Fredoka, Nunito } from "next/font/google";
+import { getCurrentProfile } from "@/utils/auth/current-user";
 import { FeedProvider } from "./components/feed-provider";
 import { KidsProvider } from "./components/kids-provider";
+import { UserProvider } from "./components/user-provider";
 import "./globals.css";
 
 const fredoka = Fredoka({
@@ -15,17 +17,23 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "OpenDayCare · Sala Soles",
-  description: "Gestión y comunicación de la Sala Soles en OpenDayCare.",
+  title: "OpenDayCare",
+  description: "Gestión y comunicación para guarderías.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const profile = await getCurrentProfile();
+
   return (
     <html
       lang="es"
       className={`${fredoka.variable} ${nunito.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col"><FeedProvider><KidsProvider>{children}</KidsProvider></FeedProvider></body>
+      <body className="min-h-full flex flex-col">
+        <UserProvider profile={profile}>
+          <FeedProvider><KidsProvider>{children}</KidsProvider></FeedProvider>
+        </UserProvider>
+      </body>
     </html>
   );
 }

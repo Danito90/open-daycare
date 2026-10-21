@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { daycareDisplayName } from "@/utils/auth/display";
 import { AppShell } from "./components/app-shell";
 import { formatRecipient, useFeed, type FeedPost, type PostType } from "./components/feed-provider";
 import { CameraIcon, CommentIcon, HeartIcon, ImageIcon, MegaphoneIcon } from "./components/feed-icons";
+import { UserAvatar } from "./components/user-avatar";
+import { useUser } from "./components/user-provider";
 import { CreatePostModal, type CreatePostForm } from "./feed/CreatePostModal";
 
 const typeStyles: Record<PostType, string> = {
@@ -41,8 +44,11 @@ function Post({ post }: { post: FeedPost }) {
 }
 
 export default function Home() {
+  const user = useUser();
   const { posts, addPost } = useFeed();
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
+  const fullName = user?.fullName?.trim() || "Usuario";
+  const daycareName = daycareDisplayName(user?.daycareName);
 
   function handleSubmit(form: CreatePostForm) {
     addPost(form);
@@ -54,12 +60,12 @@ export default function Home() {
       <div className="min-h-screen overflow-y-auto px-[18px] pb-12 pt-[76px] md:px-10 md:pb-20 md:pt-[34px]">
         <div className="mx-auto w-full max-w-[680px]">
           <header className="mb-6">
-            <div className="mb-1 text-[12.5px] font-extrabold tracking-[.8px] text-[#D9583C]">GUARDERÍA · SALA SOLES</div>
-            <h1 className="m-0 font-[family-name:var(--font-fredoka)] text-[28px] font-semibold text-[#3F362E] md:text-[30px]">Buenas, Caro</h1>
+            <div className="mb-1 text-[12.5px] font-extrabold uppercase tracking-[.8px] text-[#D9583C]">GUARDERÍA{daycareName ? ` · ${daycareName}` : ""}</div>
+            <h1 className="m-0 font-[family-name:var(--font-fredoka)] text-[28px] font-semibold text-[#3F362E] md:text-[30px]">Buenas, {fullName}</h1>
             <p className="mt-1 text-[14.5px] text-[#94887B]">12 niños · martes 17 jun</p>
           </header>
           <button className="mb-6 flex w-full items-center gap-3.5 rounded-[18px] border border-[#ECE0D0] bg-[#FFFDF9] p-3.5 px-[18px] text-left text-[15px] text-[#A89A8B] shadow-[0_4px_14px_-10px_rgba(120,90,60,.4)]" type="button" onClick={() => setIsCreatePostOpen(true)}>
-            <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[#F2937A] font-[family-name:var(--font-fredoka)] font-semibold text-white">C</span>
+            <UserAvatar className="h-10 w-10" fullName={fullName} avatarUrl={user?.avatarUrl ?? null} />
             <span className="flex-1">Compartí un momento…</span>
             <span className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-xl bg-[#FBE3D8] text-[#E0654A]"><CameraIcon className="h-[19px] w-[19px]" /></span>
           </button>
