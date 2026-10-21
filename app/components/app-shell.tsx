@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { signOut } from "@/app/actions/auth";
+import { daycareDisplayName } from "@/utils/auth/display";
 import { BellIcon, CloseIcon, HomeIcon, LogoutIcon, MenuIcon, PeopleIcon, PlusIcon, SunIcon, UserIcon } from "./icons";
+import { UserAvatar } from "./user-avatar";
+import { useUser } from "./user-provider";
 
 type NavigationKey = "feed" | "kids" | "notices" | "account";
 
@@ -34,6 +38,9 @@ function Navigation({ active, onNavigate }: { active: NavigationKey; onNavigate?
 }
 
 function Brand() {
+  const user = useUser();
+  const daycareName = daycareDisplayName(user?.daycareName);
+
   return (
     <Link className="flex items-center gap-[11px] px-2 pb-[22px] pt-1" href="/">
       <span className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-xl bg-gradient-to-br from-[#F8C3A8] to-[#F2937A] text-white">
@@ -41,7 +48,7 @@ function Brand() {
       </span>
       <span>
         <strong className="block font-[family-name:var(--font-fredoka)] text-[17px] font-semibold leading-none text-[#3F362E]">OpenDayCare</strong>
-        <small className="mt-0.5 block text-[11.5px] text-[#A89A8B]">Sala Soles</small>
+        {daycareName ? <small className="mt-0.5 block truncate text-[11.5px] text-[#A89A8B]">{daycareName}</small> : null}
       </span>
     </Link>
   );
@@ -54,22 +61,34 @@ function CreatePublicationTrigger({ onClick }: { onClick?: () => void }) {
   return onClick ? <button className={className} type="button" onClick={onClick}>{content}</button> : <a className={className} href="#nueva-publicacion">{content}</a>;
 }
 
+function UserBlock({ mobile = false }: { mobile?: boolean }) {
+  const user = useUser();
+  const fullName = user?.fullName?.trim() || "Usuario";
+  const subtitle = user?.roleLabel?.trim() || "";
+
+  return (
+    <div className={`flex items-center gap-[11px] border-t border-[#ECE0D0] px-2 pb-1 pt-5 ${mobile ? "" : "mt-[10px]"}`}>
+      <UserAvatar fullName={fullName} avatarUrl={user?.avatarUrl ?? null} />
+      <div className="min-w-0 flex-1">
+        <strong className="block truncate text-sm font-extrabold text-[#3F362E]">{fullName}</strong>
+        {subtitle ? <small className="block truncate text-xs text-[#A89A8B]">{subtitle}</small> : null}
+      </div>
+      <form action={signOut} className="flex-none">
+        <button className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[#F6ECDF] text-[#94887B]" type="submit" aria-label="Cerrar sesión">
+          <LogoutIcon className="h-4 w-4" />
+        </button>
+      </form>
+    </div>
+  );
+}
+
 function Sidebar({ active, onNewPublication }: { active: NavigationKey; onNewPublication?: () => void }) {
   return (
     <aside className="sticky top-0 hidden h-screen w-[248px] flex-none flex-col border-r border-[#ECE0D0] bg-[#FFFDF9] px-4 pb-4 pt-6 md:flex">
       <Brand />
       <CreatePublicationTrigger onClick={onNewPublication} />
       <Navigation active={active} />
-      <div className="mt-[10px] flex items-center gap-[11px] border-t border-[#ECE0D0] px-2 pb-1 pt-5">
-        <div className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-full bg-[#F2937A] font-[family-name:var(--font-fredoka)] text-base font-semibold text-white">C</div>
-        <div className="min-w-0 flex-1">
-          <strong className="block truncate text-sm font-extrabold text-[#3F362E]">Caro Giménez</strong>
-          <small className="block text-xs text-[#A89A8B]">Maestra · Soles</small>
-        </div>
-        <a className="flex h-8 w-8 flex-none items-center justify-center rounded-[10px] bg-[#F6ECDF] text-[#94887B]" href="#cerrar-sesion" aria-label="Cerrar sesión">
-          <LogoutIcon className="h-4 w-4" />
-        </a>
-      </div>
+      <UserBlock />
     </aside>
   );
 }
@@ -103,6 +122,7 @@ export function AppShell({ active, children, onNewPublication }: { active: Navig
             </div>
             <div onClick={closeMobileMenu}><CreatePublicationTrigger onClick={onNewPublication} /></div>
             <Navigation active={active} onNavigate={closeMobileMenu} />
+            <UserBlock mobile />
           </aside>
         </>
       )}

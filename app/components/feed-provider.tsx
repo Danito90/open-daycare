@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import type { CreatePostForm } from "../feed/CreatePostModal";
+import { getInitials } from "./user-avatar";
+import { useUser } from "./user-provider";
 
 export type PostRecipient = "mateo" | "sofia" | "benjamin" | "all";
 export type PostType = "Comida" | "Siesta" | "Actividad" | "Logro" | "Ánimo" | "Foto" | "Anuncio";
@@ -74,7 +76,9 @@ const recipientNames: Record<Exclude<PostRecipient, "all">, string> = {
 const FeedContext = createContext<FeedContextValue | null>(null);
 
 export function FeedProvider({ children }: { children: ReactNode }) {
+  const user = useUser();
   const [posts, setPosts] = useState<FeedPost[]>(() => [...initialPosts]);
+  const authorName = user?.fullName?.trim() || "Usuario";
 
   function addPost(form: CreatePostForm) {
     if (!form.recipients.length || !form.type || !form.description.trim()) {
@@ -83,8 +87,8 @@ export function FeedProvider({ children }: { children: ReactNode }) {
 
     const newPost: FeedPost = {
       id: `post-${crypto.randomUUID()}`,
-      author: "Caro Giménez",
-      avatar: "C",
+      author: authorName,
+      avatar: getInitials(authorName),
       time: formatTime(new Date()),
       type: form.type,
       recipients: form.recipients,

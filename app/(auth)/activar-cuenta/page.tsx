@@ -45,7 +45,7 @@ export default function ActivateAccountPage() {
 
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length === 0) {
-      router.push("/");
+      router.push("/login");
     }
   }
 
