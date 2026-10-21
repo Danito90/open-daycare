@@ -1,15 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
-import { kids as initialKids, type Kid, type ParentLink } from "../data/kids";
-
-export type AddKidForm = {
-  name: string;
-  birthDate: string;
-  room: "Soles";
-  allergies: string;
-  medicalNotes: string;
-};
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 
 export type LinkParentForm = {
   name: string;
@@ -17,57 +8,44 @@ export type LinkParentForm = {
   relationship: "Mamá" | "Papá" | "Tutor/a" | "";
 };
 
-type KidsContextValue = {
-  kids: Kid[];
-  addKid: (form: AddKidForm) => Kid;
-  addParent: (kidId: string, form: LinkParentForm) => void;
+export type ParentLink = {
+  name: string;
+  relationship: string;
+  status: "active" | "pending";
+  initial: string;
+  avatarBackground: string;
 };
 
+type KidsContextValue = {
+  addParent: (kidId: string, form: LinkParentForm) => void;
+  getParents: (kidId: string) => ParentLink[];
+};
+
+const NO_PARENTS: ParentLink[] = [];
 const KidsContext = createContext<KidsContextValue | null>(null);
 
-const avatarDefaults = {
-  avatarBackground: "#DCE9C9",
-  avatarColor: "#557C3E",
-};
-
-const monthNames = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
-
 export function KidsProvider({ children }: { children: ReactNode }) {
-  const [kids, setKids] = useState<Kid[]>(() => [...initialKids]);
+  const [parentsByKid, setParentsByKid] = useState<Record<string, ParentLink[]>>({});
 
-  function addKid(form: AddKidForm) {
-    const birthDate = parseBirthDate(form.birthDate);
+  const addParent = useCallback((kidId: string, form: LinkParentForm) => {
     const name = form.name.trim();
-    const newKid: Kid = {
-      id: slugify(name),
-      name,
-      initial: name.charAt(0).toUpperCase(),
-      age: calculateAge(birthDate),
-      ...avatarDefaults,
-      room: form.room,
-      birthDate: formatBirthDate(birthDate),
-      enrollmentDate: formatEnrollmentDate(new Date()),
-      allergiesAndNotes: formatAllergiesAndNotes(form.allergies, form.medicalNotes),
-      parents: [],
-    };
-
-    setKids((currentKids) => [...currentKids, newKid]);
-    return newKid;
-  }
-
-  function addParent(kidId: string, form: LinkParentForm) {
     const parent: ParentLink = {
-      name: form.name.trim(),
+      name,
       relationship: form.relationship,
       status: "pending",
-      initial: form.name.trim().charAt(0).toUpperCase(),
+      initial: name.charAt(0).toUpperCase(),
       avatarBackground: "#A9C7E8",
     };
 
-    setKids((currentKids) => currentKids.map((kid) => kid.id === kidId ? { ...kid, parents: [...kid.parents, parent] } : kid));
-  }
+    setParentsByKid((current) => ({
+      ...current,
+      [kidId]: [...(current[kidId] ?? []), parent],
+    }));
+  }, []);
 
-  const value = useMemo(() => ({ kids, addKid, addParent }), [kids]);
+  const getParents = useCallback((kidId: string) => parentsByKid[kidId] ?? NO_PARENTS, [parentsByKid]);
+
+  const value = useMemo(() => ({ addParent, getParents }), [addParent, getParents]);
 
   return <KidsContext.Provider value={value}>{children}</KidsContext.Provider>;
 }
@@ -80,40 +58,4 @@ export function useKids() {
   }
 
   return context;
-}
-
-function parseBirthDate(value: string) {
-  const [day, month, year] = value.split("/").map(Number);
-  return new Date(year, month - 1, day);
-}
-
-function calculateAge(birthDate: Date) {
-  const today = new Date();
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const birthdayHasNotHappened = today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate());
-
-  if (birthdayHasNotHappened) age -= 1;
-  return age;
-}
-
-function formatBirthDate(date: Date) {
-  return `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
-}
-
-function formatEnrollmentDate(date: Date) {
-  return `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
-}
-
-function formatAllergiesAndNotes(allergies: string, medicalNotes: string) {
-  const details = [allergies.trim(), medicalNotes.trim()].filter(Boolean);
-  return details.length ? details.join(". ") : "Sin alergias registradas.";
-}
-
-function slugify(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
 }
