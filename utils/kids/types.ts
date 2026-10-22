@@ -20,6 +20,13 @@ export type Kid = {
   roomName: string;
   allergyTags: AllergyTag[];
   medicalNotes: string | null;
+  photoConsent: boolean;
+};
+
+export type UpdatePhotoConsentState = {
+  errors?: { photoConsent?: string };
+  formError?: string;
+  saved?: boolean;
 };
 
 export type AddKidState = {

@@ -2,17 +2,20 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useKids, type ParentLink } from "../../components/kids-provider";
+import { RELATIONSHIP_LABELS, type LinkedParent } from "@/utils/invitations/types";
 import { avatarColors, calculateAge, formatAllergiesAndNotes, formatBirthDate, formatEnrollmentDate, initialOf } from "@/utils/kids/format";
 import type { Kid } from "@/utils/kids/types";
 import { AppShell } from "../../components/app-shell";
 import { ArrowLeftIcon, PlusIcon, SunIcon, WarningIcon } from "../../components/icons";
+import { useUser } from "../../components/user-provider";
+import { EditPhotoConsentModal } from "../EditPhotoConsentModal";
 import { LinkParentModal } from "../LinkParentModal";
 
-export function KidProfile({ kid }: { kid: Kid }) {
-  const { addParent, getParents } = useKids();
+export function KidProfile({ kid, parents }: { kid: Kid; parents: LinkedParent[] }) {
+  const user = useUser();
+  const isParent = user?.role === "parent";
   const [isLinkParentModalOpen, setIsLinkParentModalOpen] = useState(false);
-  const parents = getParents(kid.id);
+  const [isPhotoConsentModalOpen, setIsPhotoConsentModalOpen] = useState(false);
   const avatar = avatarColors(kid.id);
 
   return (
@@ -25,7 +28,7 @@ export function KidProfile({ kid }: { kid: Kid }) {
               <div className="flex flex-wrap items-center gap-[18px]">
                 <div className="flex h-[84px] w-[84px] flex-none items-center justify-center rounded-full font-[family-name:var(--font-fredoka)] text-[34px] font-semibold" style={{ backgroundColor: avatar.background, color: avatar.color }}>{initialOf(kid.fullName)}</div>
                 <div className="min-w-0 flex-1"><h1 className="m-0 font-[family-name:var(--font-fredoka)] text-[28px] font-semibold text-[#3F362E]">{kid.fullName}</h1><p className="mt-1 text-[15px] text-[#94887B]">{calculateAge(kid.birthDate)} años · Sala {kid.roomName}</p></div>
-                <a className="rounded-xl border-[1.5px] border-[#ECE0D0] bg-[#FFFDF9] px-4 py-2 text-sm font-bold text-[#6E6359]" href="#editar">Editar</a>
+                <button className="rounded-xl border-[1.5px] border-[#ECE0D0] bg-[#FFFDF9] px-4 py-2 text-sm font-bold text-[#6E6359]" type="button" onClick={() => setIsPhotoConsentModalOpen(true)}>Editar</button>
               </div>
               <div className="flex gap-3.5 rounded-2xl bg-[#FBDAD6] p-4 px-[18px]">
                 <div className="flex h-10 w-10 flex-none items-center justify-center rounded-[11px] bg-[#F4A8A0] text-white"><WarningIcon className="h-[22px] w-[22px] stroke-[2.2]" /></div>
@@ -42,15 +45,18 @@ export function KidProfile({ kid }: { kid: Kid }) {
               <div className="rounded-2xl border border-[#ECE0D0] bg-[#FFFDF9] p-4 px-[18px]">
                 <div className="mb-3.5 text-[12.5px] font-extrabold tracking-[.8px] text-[#8A7C6D]">PADRES VINCULADOS</div>
                 <div className="flex flex-col gap-3.5">
-                  {parents.map((parent) => <ParentRow key={parent.name} parent={parent} />)}
-                  <button className="flex items-center gap-3 pt-2 text-left text-[14.5px] font-extrabold text-[#C5503A]" type="button" onClick={() => setIsLinkParentModalOpen(true)}><span className="flex h-10 w-10 flex-none items-center justify-center rounded-full border-[1.5px] border-dashed border-[#D8CBBA] text-[#B0A290]"><PlusIcon className="h-[18px] w-[18px] stroke-[2.2]" /></span>Vincular otro padre</button>
+                  {parents.map((parent) => <ParentRow key={parent.id} parent={parent} />)}
+                  {!isParent ? (
+                    <button className="flex items-center gap-3 pt-2 text-left text-[14.5px] font-extrabold text-[#C5503A]" type="button" onClick={() => setIsLinkParentModalOpen(true)}><span className="flex h-10 w-10 flex-none items-center justify-center rounded-full border-[1.5px] border-dashed border-[#D8CBBA] text-[#B0A290]"><PlusIcon className="h-[18px] w-[18px] stroke-[2.2]" /></span>Vincular otro padre</button>
+                  ) : null}
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <LinkParentModal childName={kid.fullName} open={isLinkParentModalOpen} onClose={() => setIsLinkParentModalOpen(false)} onSubmit={(form) => { addParent(kid.id, form); setIsLinkParentModalOpen(false); }} />
+      {isLinkParentModalOpen ? <LinkParentModal childId={kid.id} childName={kid.fullName} onClose={() => setIsLinkParentModalOpen(false)} /> : null}
+      {isPhotoConsentModalOpen ? <EditPhotoConsentModal kidId={kid.id} kidName={kid.fullName} photoConsent={kid.photoConsent} onClose={() => setIsPhotoConsentModalOpen(false)} /> : null}
     </AppShell>
   );
 }
@@ -59,7 +65,9 @@ function InfoRow({ label, value, last = false }: { label: string; value: string;
   return <div className={`flex justify-between gap-4 px-[18px] py-[15px] text-[14.5px] ${last ? "" : "border-b border-[#F0E6D8]"}`}><span className="text-[#94887B]">{label}</span><span className="text-right font-extrabold text-[#3F362E]">{value}</span></div>;
 }
 
-function ParentRow({ parent }: { parent: ParentLink }) {
+function ParentRow({ parent }: { parent: LinkedParent }) {
   const pending = parent.status === "pending";
-  return <div className="flex items-center gap-3"><div className="flex h-10 w-10 flex-none items-center justify-center rounded-full font-[family-name:var(--font-fredoka)] text-base font-semibold text-white" style={{ backgroundColor: parent.avatarBackground }}>{parent.initial}</div><div className="min-w-0 flex-1"><div className="truncate text-[14.5px] font-extrabold text-[#3F362E]">{parent.name}</div><div className="text-[12.5px] text-[#A89A8B]">{parent.relationship} · {pending ? "invitación enviada" : "activa"}</div></div><span className={`flex-none rounded-full px-2.5 py-1 text-[10.5px] font-extrabold ${pending ? "bg-[#F7E7A6] text-[#9A7B1E]" : "bg-[#CFEBD8] text-[#3E9B6C]"}`}>{pending ? "PENDIENTE" : "ACTIVA"}</span></div>;
+  const avatar = avatarColors(parent.id);
+
+  return <div className="flex items-center gap-3"><div className="flex h-10 w-10 flex-none items-center justify-center rounded-full font-[family-name:var(--font-fredoka)] text-base font-semibold" style={{ backgroundColor: avatar.background, color: avatar.color }}>{initialOf(parent.name)}</div><div className="min-w-0 flex-1"><div className="truncate text-[14.5px] font-extrabold text-[#3F362E]">{parent.name}</div><div className="text-[12.5px] text-[#A89A8B]">{RELATIONSHIP_LABELS[parent.relationship]} · {pending ? "invitación enviada" : "activa"}</div></div><span className={`flex-none rounded-full px-2.5 py-1 text-[10.5px] font-extrabold ${pending ? "bg-[#F7E7A6] text-[#9A7B1E]" : "bg-[#CFEBD8] text-[#3E9B6C]"}`}>{pending ? "PENDIENTE" : "ACTIVA"}</span></div>;
 }

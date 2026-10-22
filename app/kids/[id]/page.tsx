@@ -1,14 +1,22 @@
 import { notFound } from "next/navigation";
-import { getKidById } from "@/utils/kids/queries";
+import { getKidParents } from "@/utils/invitations/queries";
+import { getKidById, isUuid } from "@/utils/kids/queries";
 import { KidProfile } from "./kid-profile";
 
 export default async function KidProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+
+  if (!isUuid(id)) {
+    notFound();
+  }
+
   const kid = await getKidById(id);
 
   if (!kid) {
     notFound();
   }
 
-  return <KidProfile kid={kid} />;
+  const parents = await getKidParents(id);
+
+  return <KidProfile kid={kid} parents={parents} />;
 }

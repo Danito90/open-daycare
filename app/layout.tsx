@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Fredoka, Nunito } from "next/font/google";
 import { getCurrentProfile } from "@/utils/auth/current-user";
 import { FeedProvider } from "./components/feed-provider";
-import { KidsProvider } from "./components/kids-provider";
 import { UserProvider } from "./components/user-provider";
 import "./globals.css";
 
@@ -31,7 +30,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <UserProvider profile={profile}>
-          <FeedProvider><KidsProvider>{children}</KidsProvider></FeedProvider>
+          <FeedProvider>{children}</FeedProvider>
         </UserProvider>
       </body>
     </html>
