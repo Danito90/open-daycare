@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { isValidIsoDate } from "@/utils/kids/format";
 import { isUuid } from "@/utils/kids/queries";
-import { isAllergyTag, type AddKidState } from "@/utils/kids/types";
+import { isAllergyTag, type AddKidState, type UpdatePhotoConsentState } from "@/utils/kids/types";
 import { createClient } from "@/utils/supabase/server";
 
 const INSERT_ERROR_MESSAGES: Record<string, string> = {
@@ -98,4 +98,57 @@ export async function createKid(_previousState: AddKidState, formData: FormData)
   revalidatePath("/kids");
 
   return { savedKidId: (data as { id: string }).id };
+}
+
+export async function updatePhotoConsent(
+  _previousState: UpdatePhotoConsentState,
+  formData: FormData,
+): Promise<UpdatePhotoConsentState> {
+  const childId = String(formData.get("childId") ?? "");
+  const rawConsent = String(formData.get("photoConsent") ?? "");
+
+  if (!isUuid(childId)) {
+    return { formError: "No pudimos identificar al niño. Recargá la página e intentá de nuevo." };
+  }
+
+  if (rawConsent !== "true" && rawConsent !== "false") {
+    return { errors: { photoConsent: "Elegí si autorizás o no las fotos." } };
+  }
+
+  const supabase = await createClient();
+
+  try {
+    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
+
+    if (claimsError || !claimsData?.claims) {
+      return { formError: "Tu sesión expiró. Volvé a iniciar sesión e intentá de nuevo." };
+    }
+  } catch {
+    return { formError: "No pudimos verificar tu sesión. Intentá de nuevo." };
+  }
+
+  const { data, error } = await supabase
+    .from("children")
+    .update({ photo_consent: rawConsent === "true" })
+    .eq("id", childId)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    return {
+      formError:
+        error.code === "42501"
+          ? "Tu perfil no tiene permiso para cambiar el consentimiento."
+          : "No pudimos guardar el consentimiento. Intentá de nuevo.",
+    };
+  }
+
+  if (!data) {
+    return { formError: "No pudimos actualizar el consentimiento de este niño." };
+  }
+
+  revalidatePath(`/kids/${childId}`);
+  revalidatePath("/kids");
+
+  return { saved: true };
 }

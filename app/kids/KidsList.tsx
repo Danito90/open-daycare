@@ -5,10 +5,8 @@ import { useState } from "react";
 import type { Kid, Room } from "@/utils/kids/types";
 import { allergyLabels, avatarColors, calculateAge, initialOf } from "@/utils/kids/format";
 import { ArrowRightIcon, SearchIcon } from "../components/icons";
-import { useKids } from "../components/kids-provider";
 
 export function KidsList({ rooms, kids }: { rooms: Room[]; kids: Kid[] }) {
-  const { getParents } = useKids();
   const [query, setQuery] = useState("");
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const filteredKids = normalizedQuery
@@ -36,7 +34,7 @@ export function KidsList({ rooms, kids }: { rooms: Room[]; kids: Kid[] }) {
                 <span className="h-px flex-1 bg-[#E7DAC8]" />
               </div>
               <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2">
-                {roomKids.map((kid) => <KidCard key={kid.id} kid={kid} parentsCount={getParents(kid.id).length} />)}
+                {roomKids.map((kid) => <KidCard key={kid.id} kid={kid} />)}
               </div>
             </section>
           ))}
@@ -50,7 +48,7 @@ export function KidsList({ rooms, kids }: { rooms: Room[]; kids: Kid[] }) {
   );
 }
 
-function KidCard({ kid, parentsCount }: { kid: Kid; parentsCount: number }) {
+function KidCard({ kid }: { kid: Kid }) {
   const avatar = avatarColors(kid.id);
 
   return (
@@ -59,7 +57,7 @@ function KidCard({ kid, parentsCount }: { kid: Kid; parentsCount: number }) {
       <div className="min-w-0 flex-1">
         <div className="truncate font-[family-name:var(--font-fredoka)] text-base font-semibold text-[#3F362E]">{kid.fullName}</div>
         <div className="text-[13px] text-[#A89A8B]">
-          {calculateAge(kid.birthDate)} años · {parentsCount ? `${parentsCount} ${parentsCount === 1 ? "padre vinculado" : "padres vinculados"}` : "sin padres vinculados"}
+          {calculateAge(kid.birthDate)} años · {kid.roomName}
         </div>
       </div>
       {kid.allergyTags.length > 0 ? (

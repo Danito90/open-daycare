@@ -1,4 +1,4 @@
-import type { UserProfile } from "@/utils/auth/types";
+import type { UserProfile, UserRole } from "@/utils/auth/types";
 import { createClient } from "@/utils/supabase/server";
 
 const ROLE_LABELS: Record<string, string> = {
@@ -14,6 +14,12 @@ type ProfileRow = {
   daycare_id?: string | null;
 };
 
+function toUserRole(value: string | null): UserRole | null {
+  if (value === "staff" || value === "parent" || value === "admin") return value;
+
+  return null;
+}
+
 type EmbeddedDaycare = { name: string | null } | { name: string | null }[] | null;
 
 function normalizeDaycareName(value: EmbeddedDaycare) {
@@ -26,6 +32,7 @@ function normalizeDaycareName(value: EmbeddedDaycare) {
 function toProfile(row: ProfileRow, daycareName: string | null): UserProfile {
   return {
     fullName: row.full_name?.trim() || "Usuario",
+    role: toUserRole(row.role),
     roleLabel: row.role ? (ROLE_LABELS[row.role] ?? row.role) : "",
     daycareName,
     avatarUrl: row.avatar_url?.trim() || null,
@@ -63,7 +70,7 @@ export async function getCurrentProfile(): Promise<UserProfile | null> {
       .maybeSingle();
 
     if (fallbackError || !fallbackData) {
-      return { fullName: "Usuario", roleLabel: "", daycareName: null, avatarUrl: null };
+      return { fullName: "Usuario", role: null, roleLabel: "", daycareName: null, avatarUrl: null };
     }
 
     const row = fallbackData as ProfileRow;

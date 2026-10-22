@@ -2,7 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { isAllergyTag, type Kid, type Room } from "./types";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const KID_COLUMNS = "id, full_name, birth_date, enrolled_at, room_id, medical_notes, allergy_tags, rooms(id, name)";
+const KID_COLUMNS = "id, full_name, birth_date, enrolled_at, room_id, medical_notes, allergy_tags, photo_consent, rooms(id, name)";
 
 type EmbeddedRoom = { name: string } | { name: string }[] | null;
 
@@ -19,6 +19,7 @@ type KidRow = {
   room_id: string;
   medical_notes: string | null;
   allergy_tags: string[] | null;
+  photo_consent: boolean;
   rooms: EmbeddedRoom;
 };
 
@@ -43,6 +44,7 @@ function toKid(row: KidRow): Kid {
     roomName: normalizeRoomName(row.rooms),
     allergyTags: (row.allergy_tags ?? []).filter(isAllergyTag),
     medicalNotes: row.medical_notes?.trim() || null,
+    photoConsent: row.photo_consent,
   };
 }
 
