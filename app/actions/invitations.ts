@@ -269,8 +269,17 @@ export async function createInvitation(
       appUrl,
       childId,
     });
-  } catch {
+  } catch (error) {
     await admin.from("invitations").update({ status: "cancelled" }).eq("id", invitationId);
+
+    const message = error instanceof Error ? error.message : "";
+
+    if (/verify a domain|only send testing emails/i.test(message)) {
+      return {
+        formError:
+          "Resend todavía no puede enviar a ese destinatario: sin un dominio verificado solo se entrega al email de la cuenta y a direcciones de prueba @resend.dev. Verificá un dominio en resend.com/domains para enviar a otros correos.",
+      };
+    }
 
     return { formError: "No pudimos enviar el correo. Revisá la dirección e intentá de nuevo." };
   }
