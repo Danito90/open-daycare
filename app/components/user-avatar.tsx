@@ -20,16 +20,16 @@ export function UserAvatar({
   avatarUrl: string | null;
   className?: string;
 }) {
-  const [imageFailed, setImageFailed] = useState(false);
+  const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
   const baseClassName = `${className} flex-none rounded-full`;
 
-  if (avatarUrl && !imageFailed) {
+  if (avatarUrl && failedAvatarUrl !== avatarUrl) {
     return (
       <img
         alt=""
         className={`${baseClassName} object-cover`}
         src={avatarUrl}
-        onError={() => setImageFailed(true)}
+        onError={() => setFailedAvatarUrl(avatarUrl)}
       />
     );
   }
