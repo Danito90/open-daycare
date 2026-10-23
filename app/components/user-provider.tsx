@@ -6,7 +6,7 @@ import type { UserProfile } from "@/utils/auth/types";
 const UserContext = createContext<UserProfile | null>(null);
 
 export function UserProvider({ profile, children }: { profile: UserProfile | null; children: ReactNode }) {
-  return <UserContext.Provider value={profile}>{children}</UserContext.Provider>;
+  return <UserContext value={profile}>{children}</UserContext>;
 }
 
 export function useUser() {

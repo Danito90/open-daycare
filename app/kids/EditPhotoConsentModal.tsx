@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState, type MouseEvent } from "react";
+import { useActionState, useEffect, useId, useState, type MouseEvent } from "react";
 import { useRouter } from "next/navigation";
 import { updatePhotoConsent } from "@/app/actions/kids";
 import type { UpdatePhotoConsentState } from "@/utils/kids/types";
@@ -19,6 +19,8 @@ export function EditPhotoConsentModal({ kidId, kidName, photoConsent, onClose }:
   const router = useRouter();
   const [state, formAction, isPending] = useActionState(updatePhotoConsent, initialState);
   const [consent, setConsent] = useState(photoConsent);
+  const titleId = useId();
+  const errorId = useId();
 
   useEffect(() => {
     if (state.saved) {
@@ -33,10 +35,10 @@ export function EditPhotoConsentModal({ kidId, kidName, photoConsent, onClose }:
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#3F362E]/35 px-4 py-10" onMouseDown={handleBackdropClick}>
-      <div className="w-full max-w-[460px] overflow-hidden rounded-[24px] border border-[#ECE0D0] bg-[#FBF4EC] shadow-[0_20px_50px_-24px_rgba(63,54,46,.35)]" role="dialog" aria-modal="true" aria-labelledby="edit-photo-consent-title">
+      <div className="w-full max-w-[460px] overflow-hidden rounded-[24px] border border-[#ECE0D0] bg-[#FBF4EC] shadow-[0_20px_50px_-24px_rgba(63,54,46,.35)]" role="dialog" aria-modal="true" aria-labelledby={titleId}>
         <div className="flex items-center justify-between border-b border-[#ECE0D0] px-[26px] py-5">
           <div>
-            <h2 id="edit-photo-consent-title" className="font-[family-name:var(--font-fredoka)] text-[18px] font-semibold text-[#3F362E]">Consentimiento de fotos</h2>
+            <h2 id={titleId} className="font-[family-name:var(--font-fredoka)] text-[18px] font-semibold text-[#3F362E]">Consentimiento de fotos</h2>
             <p className="text-[13px] text-[#A89A8B]">{kidName}</p>
           </div>
           <button className="flex h-[34px] w-[34px] items-center justify-center rounded-[10px] bg-[#F0E6D8] text-[#94887B]" type="button" aria-label="Cerrar modal" onClick={onClose}><CloseIcon className="h-[18px] w-[18px] stroke-[2.2]" /></button>
@@ -58,11 +60,11 @@ export function EditPhotoConsentModal({ kidId, kidName, photoConsent, onClose }:
               onChange={(event) => setConsent(event.target.checked)}
               className="mt-1 h-5 w-5 flex-none accent-[#5FB97E]"
               aria-invalid={Boolean(state.errors?.photoConsent)}
-              aria-describedby={state.errors?.photoConsent ? "photo-consent-error" : undefined}
+              aria-describedby={state.errors?.photoConsent ? errorId : undefined}
             />
             <span className="text-sm leading-[1.45] text-[#6E6359]">Autorizo a la guardería a tomar y compartir fotos de mi hijo dentro de la app.</span>
           </label>
-          {state.errors?.photoConsent ? <p id="photo-consent-error" className="-mt-3 mb-4 text-xs font-bold text-[#C5413A]">{state.errors.photoConsent}</p> : null}
+          {state.errors?.photoConsent ? <p id={errorId} className="-mt-3 mb-4 text-xs font-bold text-[#C5413A]">{state.errors.photoConsent}</p> : null}
 
           {state.formError ? (
             <p role="alert" className="mb-4 rounded-[12px] bg-[#FBE3D8] px-3.5 py-3 text-[13px] font-bold text-[#C5503A]">{state.formError}</p>

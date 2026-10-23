@@ -35,6 +35,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Priorizar desarrollo y pruebas locales antes de aplicar cambios al proyecto remoto. Habilitar RLS y definir políticas acordes al modelo de acceso para tablas expuestas mediante la API.
 - Todo cambio persistente en la base de datos, incluido esquema, políticas RLS, funciones y datos iniciales, debe quedar registrado en un archivo de migración versionado dentro de `supabase/migrations/`. Crear las migraciones mediante la CLI de Supabase, verificar el destino y el historial antes de aplicarlas al proyecto remoto, y comprobar su resultado después. Preferir pruebas locales cuando estén disponibles; no son requisito si la spec acuerda un despliegue directo en remoto. No efectuar estos cambios mediante SQL directo en el proyecto remoto. Las consultas de solo lectura para inspección y diagnóstico no requieren migración.
 
+## Migraciones de base de datos
+- El agente `db-migrator` (`.opencode/agent/db-migrator.md`) diagnostica, crea y aplica las migraciones versionadas, y mantiene `supabase/migrations/` sincronizado con el proyecto remoto.
+- Se invoca con `@db-migrator` indicando una spec, un cambio de esquema o una instrucción de puesta al día.
+- Solo escribe mediante migraciones creadas con la CLI; nunca aplica DDL directo al proyecto remoto ni edita migraciones ya aplicadas.
+- Antes de aplicar al remoto muestra la lista exacta con `supabase db push --dry-run` y solicita aprobación explícita.
+
 ## Skills instaladas
 - `.agents/skills/supabase/SKILL.md`: cargar para tareas de Supabase (Auth, Database, Storage, Edge Functions, CLI, MCP, integración o diagnóstico). Consultar la documentación vigente antes de implementar y verificar los cambios.
 - `.agents/skills/supabase-postgres-best-practices/SKILL.md`: cargar antes de diseñar o cambiar esquemas, migraciones, SQL, políticas RLS, índices, funciones o datos en Postgres; también al diagnosticar rendimiento, bloqueos o visibilidad de filas.
