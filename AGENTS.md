@@ -1,6 +1,6 @@
 <!-- BEGIN:nextjs-agent-rules -->
 
-# This is NOT the Next.js you know
+## This is NOT the Next.js you know
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
 
@@ -17,7 +17,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - `npm run dev` starts the development server at `http://localhost:3000`.
 - `npm run build` creates the production build; `npm start` serves that build.
 - `npx tsc --noEmit` runs the strict TypeScript check; there is no package script for it.
-- `npm run lint` currently fails on the legacy reference fixture `references/pantallas/support.js` (`ReactDOM.render` and assignment to `module`). Treat those as fixture issues unless the fixture is intentionally being modernized.
+- `npm run lint` passes; `references/**` and `.playwright-mcp/**` are ignored because they hold design fixtures and Playwright artifacts, not runtime code.
 
 ## Structure
 - `references/pantallas/` and `references/screenshots/` are design/reference assets, not runtime application code. Keep changes to them separate from app implementation changes.

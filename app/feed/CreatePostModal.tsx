@@ -35,24 +35,26 @@ const postTypes = [
   ["Anuncio", "bg-[#CCD8F4] text-[#4E72C8]"],
 ] as const;
 
+const emptyForm: CreatePostForm = { recipients: [], type: "", description: "" };
+
 export function CreatePostModal({ open, onClose, onSubmit }: CreatePostModalProps) {
-  const [form, setForm] = useState<CreatePostForm>({ recipients: [], type: "", description: "" });
+  if (!open) return null;
+
+  return <CreatePostModalContent onClose={onClose} onSubmit={onSubmit} />;
+}
+
+function CreatePostModalContent({ onClose, onSubmit }: Omit<CreatePostModalProps, "open">) {
+  const [form, setForm] = useState<CreatePostForm>(emptyForm);
   const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {
-    if (!open) return;
-    setForm({ recipients: [], type: "", description: "" });
-    setErrors({});
-
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") onClose();
     }
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [open, onClose]);
-
-  if (!open) return null;
+  }, [onClose]);
 
   function updateField(field: keyof CreatePostForm, value: string) {
     setForm((current) => ({ ...current, [field]: value } as CreatePostForm));
