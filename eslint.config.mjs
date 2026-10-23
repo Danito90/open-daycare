@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Design/reference assets and Playwright artifacts are not runtime code:
+    "references/**",
+    ".playwright-mcp/**",
   ]),
 ]);
 
