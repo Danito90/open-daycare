@@ -39,9 +39,9 @@ export function LinkParentModal({ childId, childName, onClose }: LinkParentModal
         <div className="flex items-center justify-between border-b border-[#ECE0D0] px-[26px] py-5">
           <div>
             <h2 id="link-parent-title" className="font-[family-name:var(--font-fredoka)] text-[18px] font-semibold text-[#3F362E]">{sent ? "Invitación enviada" : "Vincular padre"}</h2>
-            <p className="text-[13px] text-[#A89A8B]">a {childName}</p>
+            <p className="text-[13px] text-ink-soft">a {childName}</p>
           </div>
-          <button className="flex h-[34px] w-[34px] items-center justify-center rounded-[10px] bg-[#F0E6D8] text-[#94887B]" type="button" aria-label="Cerrar modal" onClick={handleClose}><CloseIcon className="h-[18px] w-[18px] stroke-[2.2]" /></button>
+          <button className="flex h-[34px] w-[34px] items-center justify-center rounded-[10px] bg-[#F0E6D8] text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" type="button" aria-label="Cerrar modal" onClick={handleClose}><CloseIcon className="h-[18px] w-[18px] stroke-[2.2]" /></button>
         </div>
 
         {sent ? (
@@ -51,9 +51,9 @@ export function LinkParentModal({ childId, childName, onClose }: LinkParentModal
               <span className="text-[13.5px] leading-[1.45]">Le enviamos la invitación a <strong>{sent.email}</strong>. También podés compartirle este código.</span>
             </div>
             <div className="mb-5 rounded-2xl border-[1.5px] border-dashed border-[#E6D08A] bg-[#FBF1D6] p-[18px] text-center">
-              <div className="mb-2 text-[12px] font-extrabold tracking-[.7px] text-[#A88526]">CÓDIGO DE INVITACIÓN</div>
-              <div className="font-[family-name:var(--font-fredoka)] text-[34px] font-semibold tracking-[7px] text-[#8A7234]" aria-label={`Código de invitación ${sent.code}`}>{sent.code}</div>
-              <div className="mt-1.5 text-[13px] text-[#A88526]">Vence en 7 días</div>
+              <div className="mb-2 text-[12px] font-extrabold tracking-[.7px] text-[#866A1E]">CÓDIGO DE INVITACIÓN</div>
+              <div className="font-[family-name:var(--font-fredoka)] text-[34px] font-semibold tracking-[7px] text-[#826B31]" aria-label={`Código de invitación ${sent.code}`}>{sent.code}</div>
+              <div className="mt-1.5 text-[13px] text-[#866A1E]">Vence en 7 días</div>
             </div>
             <button className="w-full rounded-[14px] bg-[#3F362E] px-4 py-3.5 text-[15.5px] font-extrabold text-white" type="button" onClick={handleClose}>Listo</button>
           </div>
@@ -76,24 +76,24 @@ export function LinkParentModal({ childId, childName, onClose }: LinkParentModal
             <input id="parent-email" name="email" className={inputClass(Boolean(errors.email))} type="email" placeholder="correo@ejemplo.com" value={email} onChange={(event) => setEmail(event.target.value)} aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? "parent-email-error" : undefined} />
             <FieldError id="parent-email-error" message={errors.email} />
 
-            <div className="mb-2 text-[12px] font-extrabold tracking-[.7px] text-[#94887B]">PARENTESCO</div>
+            <div className="mb-2 text-[12px] font-extrabold tracking-[.7px] text-ink-muted">PARENTESCO</div>
             <div className="mb-2 flex gap-[9px]" role="group" aria-label="Parentesco">
-              {RELATIONSHIP_OPTIONS.map((option) => <button key={option.value} className={`flex-1 rounded-full border-[1.5px] px-2 py-[11px] text-[14px] font-extrabold ${relationship === option.value ? "border-[#9FB8EC] bg-[#CCD8F4] text-[#4E72C8]" : "border-[#ECE0D0] bg-[#FFFDF9] text-[#6E6359]"}`} type="button" aria-pressed={relationship === option.value} onClick={() => setRelationship(option.value)}>{option.label}</button>)}
+              {RELATIONSHIP_OPTIONS.map((option) => <button key={option.value} className={`flex-1 rounded-full border-[1.5px] px-2 py-[11px] text-[14px] font-extrabold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${relationship === option.value ? "border-[#9FB8EC] bg-[#CCD8F4] text-[#3659AE]" : "border-[#ECE0D0] bg-[#FFFDF9] text-ink-soft"}`} type="button" aria-pressed={relationship === option.value} onClick={() => setRelationship(option.value)}>{option.label}</button>)}
             </div>
             <FieldError id="parent-relationship-error" message={errors.relationship} />
-            {errors.code ? <p className="mb-4 text-xs font-bold text-[#C5413A]">{errors.code}</p> : null}
+            {errors.code ? <p role="alert" className="mb-4 text-xs font-bold text-[#B13A34]">{errors.code}</p> : null}
 
             <div className="mb-5 rounded-2xl border-[1.5px] border-dashed border-[#E6D08A] bg-[#FBF1D6] p-[18px] text-center">
-              <div className="mb-2 text-[12px] font-extrabold tracking-[.7px] text-[#A88526]">CÓDIGO DE INVITACIÓN</div>
-              <div className="font-[family-name:var(--font-fredoka)] text-[34px] font-semibold tracking-[7px] text-[#8A7234]" aria-label={`Código de invitación ${code}`}>{code}</div>
-              <div className="mt-1.5 text-[13px] text-[#A88526]">Vence en 7 días</div>
+              <div className="mb-2 text-[12px] font-extrabold tracking-[.7px] text-[#866A1E]">CÓDIGO DE INVITACIÓN</div>
+              <div className="font-[family-name:var(--font-fredoka)] text-[34px] font-semibold tracking-[7px] text-[#826B31]" aria-label={`Código de invitación ${code}`}>{code}</div>
+              <div className="mt-1.5 text-[13px] text-[#866A1E]">Vence en 7 días</div>
             </div>
 
             {state.formError ? (
-              <p role="alert" className="mb-4 rounded-[12px] bg-[#FBE3D8] px-3.5 py-3 text-[13px] font-bold text-[#C5503A]">{state.formError}</p>
+              <p role="alert" className="mb-4 rounded-[12px] bg-[#FBE3D8] px-3.5 py-3 text-[13px] font-bold text-brand">{state.formError}</p>
             ) : null}
 
-            <button className="flex w-full items-center justify-center gap-[9px] rounded-[14px] bg-gradient-to-b from-[#F4977E] to-[#EE8164] px-4 py-3.5 text-[15.5px] font-extrabold text-white shadow-[0_10px_22px_-8px_rgba(238,129,100,.7)] disabled:cursor-not-allowed disabled:opacity-70" type="submit" disabled={isPending}><SendIcon className="h-[19px] w-[19px] stroke-[2]" />{isPending ? "Enviando…" : "Enviar invitación"}</button>
+            <button className="flex w-full items-center justify-center gap-[9px] rounded-[14px] bg-gradient-to-b from-[#F4977E] to-[#EE8164] px-4 py-3.5 text-[15.5px] font-extrabold text-ink shadow-[0_10px_22px_-8px_rgba(238,129,100,.7)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-70" type="submit" disabled={isPending}><SendIcon className="h-[19px] w-[19px] stroke-[2]" />{isPending ? "Enviando…" : "Enviar invitación"}</button>
           </form>
         )}
       </div>
@@ -102,15 +102,15 @@ export function LinkParentModal({ childId, childName, onClose }: LinkParentModal
 }
 
 function FieldLabel({ htmlFor, children }: { htmlFor: string; children: string }) {
-  return <label className="mb-2 block text-[12px] font-extrabold tracking-[.7px] text-[#94887B]" htmlFor={htmlFor}>{children}</label>;
+  return <label className="mb-2 block text-[12px] font-extrabold tracking-[.7px] text-ink-muted" htmlFor={htmlFor}>{children}</label>;
 }
 
 function FieldError({ id, message }: { id: string; message?: string }) {
-  return message ? <p id={id} className="-mt-3 mb-4 text-xs font-bold text-[#C5413A]">{message}</p> : <div className="mb-[18px]" />;
+  return message ? <p id={id} role="alert" className="-mt-3 mb-4 text-xs font-bold text-[#B13A34]">{message}</p> : <div className="mb-[18px]" />;
 }
 
 function inputClass(hasError: boolean) {
-  return `mb-[18px] w-full rounded-[14px] border-[1.5px] bg-white px-4 py-[13px] text-[15px] text-[#3F362E] outline-none placeholder:text-[#B6A99B] ${hasError ? "border-[#C5413A]" : "border-[#EADFD0]"}`;
+  return `mb-[18px] w-full rounded-[14px] border-[1.5px] bg-white px-4 py-[13px] text-[15px] text-ink-strong transition placeholder:text-field-placeholder focus:border-[#F2937A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${hasError ? "border-[#C5413A]" : "border-field-line"}`;
 }
 
 function generateInvitationCode() {

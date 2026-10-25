@@ -81,11 +81,11 @@ export function initialOf(fullName: string) {
 }
 
 const AVATAR_PALETTE = [
-  { background: "#A9D9E8", color: "#1F7A93" },
-  { background: "#F4B8CC", color: "#C44A7A" },
-  { background: "#B9DEC4", color: "#3E8B62" },
-  { background: "#F4DC8E", color: "#9A7B1E" },
-  { background: "#C9B6E8", color: "#7B5FC0" },
+  { background: "#A9D9E8", color: "#196175" },
+  { background: "#F4B8CC", color: "#912F56" },
+  { background: "#B9DEC4", color: "#2E6648" },
+  { background: "#F4DC8E", color: "#765E17" },
+  { background: "#C9B6E8", color: "#553B96" },
 ] as const;
 
 export function avatarColors(seed: string) {
