@@ -12,6 +12,10 @@
     "spec-impl": {
       "description": "Implementa especificaciones de pantallas y funcionalidades",
       "template": "Carga y sigue la skill spec-impl en .agents/skills/spec-impl/SKILL.md.\n\nFeature: $ARGUMENTS"
+    },
+    "a11y": {
+      "description": "Crea especificaciones de accesibilidad",
+      "template": "Carga y sigue la skill a11y en .agents/skills/a11y/SKILL.md.\n\nFeature: $ARGUMENTS"
     }
   },
   "mcp": {

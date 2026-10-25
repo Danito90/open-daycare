@@ -39,9 +39,9 @@ export function EditPhotoConsentModal({ kidId, kidName, photoConsent, onClose }:
         <div className="flex items-center justify-between border-b border-[#ECE0D0] px-[26px] py-5">
           <div>
             <h2 id={titleId} className="font-[family-name:var(--font-fredoka)] text-[18px] font-semibold text-[#3F362E]">Consentimiento de fotos</h2>
-            <p className="text-[13px] text-[#A89A8B]">{kidName}</p>
+            <p className="text-[13px] text-ink-soft">{kidName}</p>
           </div>
-          <button className="flex h-[34px] w-[34px] items-center justify-center rounded-[10px] bg-[#F0E6D8] text-[#94887B]" type="button" aria-label="Cerrar modal" onClick={onClose}><CloseIcon className="h-[18px] w-[18px] stroke-[2.2]" /></button>
+          <button className="flex h-[34px] w-[34px] items-center justify-center rounded-[10px] bg-[#F0E6D8] text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" type="button" aria-label="Cerrar modal" onClick={onClose}><CloseIcon className="h-[18px] w-[18px] stroke-[2.2]" /></button>
         </div>
 
         <form className="px-[26px] py-[22px]" action={formAction} aria-busy={isPending} noValidate>
@@ -53,26 +53,26 @@ export function EditPhotoConsentModal({ kidId, kidName, photoConsent, onClose }:
             <span className="text-[13.5px] leading-[1.45]">Este permiso aplica a las fotos que la guardería comparte en la app. El cambio lo ven todos los tutores de {kidName}.</span>
           </div>
 
-          <label className="mb-5 flex cursor-pointer items-start gap-3 rounded-[14px] border-[1.5px] border-[#EADFD0] bg-white px-4 py-3.5">
+          <label className="mb-5 flex cursor-pointer items-start gap-3 rounded-[14px] border-[1.5px] border-field-line bg-white px-4 py-3.5 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-brand">
             <input
               type="checkbox"
               checked={consent}
               onChange={(event) => setConsent(event.target.checked)}
-              className="mt-1 h-5 w-5 flex-none accent-[#5FB97E]"
+              className="mt-1 h-5 w-5 flex-none accent-[#2F7A50]"
               aria-invalid={Boolean(state.errors?.photoConsent)}
               aria-describedby={state.errors?.photoConsent ? errorId : undefined}
             />
-            <span className="text-sm leading-[1.45] text-[#6E6359]">Autorizo a la guardería a tomar y compartir fotos de mi hijo dentro de la app.</span>
+            <span className="text-sm leading-[1.45] text-ink-soft">Autorizo a la guardería a tomar y compartir fotos de mi hijo dentro de la app.</span>
           </label>
-          {state.errors?.photoConsent ? <p id={errorId} className="-mt-3 mb-4 text-xs font-bold text-[#C5413A]">{state.errors.photoConsent}</p> : null}
+          {state.errors?.photoConsent ? <p id={errorId} role="alert" className="-mt-3 mb-4 text-xs font-bold text-[#B13A34]">{state.errors.photoConsent}</p> : null}
 
           {state.formError ? (
-            <p role="alert" className="mb-4 rounded-[12px] bg-[#FBE3D8] px-3.5 py-3 text-[13px] font-bold text-[#C5503A]">{state.formError}</p>
+            <p role="alert" className="mb-4 rounded-[12px] bg-[#FBE3D8] px-3.5 py-3 text-[13px] font-bold text-brand">{state.formError}</p>
           ) : null}
 
           <div className="flex gap-3">
-            <button className="flex-1 rounded-[14px] border-[1.5px] border-[#ECE0D0] bg-[#FFFDF9] px-4 py-3 text-[15px] font-extrabold text-[#6E6359]" type="button" onClick={onClose}>Cancelar</button>
-            <button className="flex-1 rounded-[14px] bg-gradient-to-b from-[#F4977E] to-[#EE8164] px-4 py-3 text-[15px] font-extrabold text-white shadow-[0_10px_22px_-8px_rgba(238,129,100,.7)] disabled:cursor-not-allowed disabled:opacity-70" type="submit" disabled={isPending}>{isPending ? "Guardando…" : "Guardar"}</button>
+            <button className="flex-1 rounded-[14px] border-[1.5px] border-[#ECE0D0] bg-[#FFFDF9] px-4 py-3 text-[15px] font-extrabold text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" type="button" onClick={onClose}>Cancelar</button>
+            <button className="flex-1 rounded-[14px] bg-gradient-to-b from-[#F4977E] to-[#EE8164] px-4 py-3 text-[15px] font-extrabold text-ink shadow-[0_10px_22px_-8px_rgba(238,129,100,.7)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-70" type="submit" disabled={isPending}>{isPending ? "Guardando…" : "Guardar"}</button>
           </div>
         </form>
       </div>

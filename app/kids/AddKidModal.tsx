@@ -4,7 +4,7 @@ import { useActionState, useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { createKid } from "@/app/actions/kids";
 import { allergyLabels } from "@/utils/kids/format";
-import { ALLERGY_TAGS, type AddKidState, type AllergyTag, type Room } from "@/utils/kids/types";
+import { ALLERGY_TAGS, type AllergyTag, type Room } from "@/utils/kids/types";
 
 type AddKidModalProps = {
   rooms: Room[];
@@ -52,9 +52,9 @@ export function AddKidModal({ rooms, today, onClose }: AddKidModalProps) {
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#3F362E]/35 px-4 py-6 sm:py-10" role="presentation" onMouseDown={onClose}>
       <form className="relative w-full max-w-[520px] overflow-hidden rounded-[24px] border border-[#ECE0D0] bg-[#FBF4EC] shadow-[0_20px_50px_-24px_rgba(63,54,46,.55)]" role="dialog" aria-modal="true" aria-labelledby="add-kid-title" action={formAction} onReset={(event) => event.preventDefault()} onMouseDown={(event) => event.stopPropagation()} noValidate>
         <div className="flex items-center justify-between border-b border-[#ECE0D0] px-5 py-4 sm:px-[26px]">
-          <button type="button" className="text-[15px] font-bold text-[#94887B] hover:text-[#6E6359]" onClick={onClose}>Cancelar</button>
-          <h2 id="add-kid-title" className="m-0 font-[family-name:var(--font-fredoka)] text-[18px] font-semibold text-[#3F362E]">Agregar niño</h2>
-          <button type="submit" className="text-[15px] font-extrabold text-[#D9583C] hover:text-[#C5503A] disabled:cursor-not-allowed disabled:opacity-60" disabled={isPending || rooms.length === 0}>{isPending ? "Guardando…" : "Guardar"}</button>
+          <button type="button" className="text-[15px] font-bold text-ink-muted hover:text-ink-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" onClick={onClose}>Cancelar</button>
+          <h2 id="add-kid-title" className="m-0 font-[family-name:var(--font-fredoka)] text-[18px] font-semibold text-ink-strong">Agregar niño</h2>
+          <button type="submit" className="text-[15px] font-extrabold text-brand hover:text-[#8A351F] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60" disabled={isPending || rooms.length === 0}>{isPending ? "Guardando…" : "Guardar"}</button>
         </div>
 
         <div className="space-y-[18px] px-5 py-6 sm:px-[26px]">
@@ -75,11 +75,11 @@ export function AddKidModal({ rooms, today, onClose }: AddKidModalProps) {
           </div>
 
           {rooms.length === 0 ? (
-            <p className="rounded-[12px] bg-[#FBE3D8] px-3.5 py-3 text-[13px] font-bold text-[#C5503A]">No hay salas disponibles para tu guardería. Contactá a un administrador.</p>
+            <p className="rounded-[12px] bg-[#FBE3D8] px-3.5 py-3 text-[13px] font-bold text-brand">No hay salas disponibles para tu guardería. Contactá a un administrador.</p>
           ) : null}
 
           <div>
-            <div className="mb-2 text-[12px] font-extrabold tracking-[.7px] text-[#94887B]">ALERGIAS (ETIQUETAS)</div>
+            <div className="mb-2 text-[12px] font-extrabold tracking-[.7px] text-ink-muted">ALERGIAS (ETIQUETAS)</div>
             <div className="flex flex-wrap gap-2" role="group" aria-label="Alergias">
               {ALLERGY_TAGS.map((tag) => {
                 const checked = selectedTags.includes(tag);
@@ -87,7 +87,7 @@ export function AddKidModal({ rooms, today, onClose }: AddKidModalProps) {
                 return (
                   <label key={tag} className="cursor-pointer">
                     <input className="peer sr-only" type="checkbox" name="allergyTags" value={tag} checked={checked} onChange={() => toggleTag(tag)} />
-                    <span className={`inline-flex rounded-full border-[1.5px] px-3.5 py-2 text-[12.5px] font-extrabold transition peer-focus-visible:ring-2 peer-focus-visible:ring-[#D9583C]/40 ${checked ? "border-[#D9684A] bg-[#FBD8CC] text-[#C5503A]" : "border-[#EADFD0] bg-white text-[#6E6359]"}`}>{allergyLabels[tag]}</span>
+                    <span className={`inline-flex rounded-full border-[1.5px] px-3.5 py-2 text-[12.5px] font-extrabold transition peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand ${checked ? "border-[#D9684A] bg-[#FBD8CC] text-[#A54331]" : "border-field-line bg-white text-ink-soft"}`}>{allergyLabels[tag]}</span>
                   </label>
                 );
               })}
@@ -98,7 +98,7 @@ export function AddKidModal({ rooms, today, onClose }: AddKidModalProps) {
             <textarea id="kid-medical-notes" name="medicalNotes" className={`${inputClass(false)} min-h-[90px] resize-y leading-[1.5]`} placeholder="Indicaciones, medicación, contactos…" value={form.medicalNotes} onChange={(event) => updateField("medicalNotes", event.target.value)} />
           </Field>
 
-          {state.formError ? <p id="add-kid-form-error" role="alert" className="rounded-[12px] bg-[#FBE3D8] px-3.5 py-3 text-[13px] font-bold text-[#C5503A]">{state.formError}</p> : null}
+          {state.formError ? <p id="add-kid-form-error" role="alert" className="rounded-[12px] bg-[#FBE3D8] px-3.5 py-3 text-[13px] font-bold text-brand">{state.formError}</p> : null}
         </div>
       </form>
     </div>
@@ -108,13 +108,13 @@ export function AddKidModal({ rooms, today, onClose }: AddKidModalProps) {
 function Field({ label, htmlFor, error, errorId, children }: { label: string; htmlFor: string; error?: string; errorId?: string; children: ReactNode }) {
   return (
     <div>
-      <label htmlFor={htmlFor} className="mb-2 block text-[12px] font-extrabold tracking-[.7px] text-[#94887B]">{label}</label>
+      <label htmlFor={htmlFor} className="mb-2 block text-[12px] font-extrabold tracking-[.7px] text-ink-muted">{label}</label>
       {children}
-      {error ? <p id={errorId} role="alert" className="mt-1.5 text-[12px] font-bold text-[#C5413A]">{error}</p> : null}
+      {error ? <p id={errorId} role="alert" className="mt-1.5 text-[12px] font-bold text-[#B13A34]">{error}</p> : null}
     </div>
   );
 }
 
 function inputClass(hasError: boolean) {
-  return `w-full rounded-[14px] border-[1.5px] ${hasError ? "border-[#D9583C]" : "border-[#EADFD0]"} bg-white px-4 py-[13px] text-[15px] text-[#3F362E] outline-none placeholder:text-[#B6A99B] focus:border-[#D9583C]`;
+  return `w-full rounded-[14px] border-[1.5px] ${hasError ? "border-[#D9583C]" : "border-field-line"} bg-white px-4 py-[13px] text-[15px] text-ink-strong transition placeholder:text-field-placeholder focus:border-[#F2937A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand`;
 }

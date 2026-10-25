@@ -41,6 +41,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Solo escribe mediante migraciones creadas con la CLI; nunca aplica DDL directo al proyecto remoto ni edita migraciones ya aplicadas.
 - Antes de aplicar al remoto muestra la lista exacta con `supabase db push --dry-run` y solicita aprobación explícita.
 
+## Auditoría de seguridad de datos
+- El agente `db-security-auditor` (`.opencode/agent/db-security-auditor.md`) audita fugas de datos entre niños, padres y guarderías: RLS, roles, grants, políticas, funciones `SECURITY DEFINER`, Storage y la capa de acceso a datos.
+- Se invoca con `@db-security-auditor` o con el comando `/db-security-audit <alcance>`; sin argumento audita el esquema expuesto completo.
+- Es de solo lectura: no crea migraciones, no edita código y no aplica SQL. Las pruebas de aislamiento se ejecutan con roles simulados dentro de transacciones que siempre terminan en `rollback`.
+- Usa el MCP de Supabase para inspección y `get_advisors`, y Context7 para validar las reglas vigentes antes de concluir.
+- Las correcciones se implementan después con `@db-migrator` a partir de la remediación propuesta, con aprobación explícita antes de tocar el remoto.
+- Una auditoría no certifica la seguridad global de la aplicación; solo el alcance revisado.
+
 ## Skills instaladas
 - `.agents/skills/supabase/SKILL.md`: cargar para tareas de Supabase (Auth, Database, Storage, Edge Functions, CLI, MCP, integración o diagnóstico). Consultar la documentación vigente antes de implementar y verificar los cambios.
 - `.agents/skills/supabase-postgres-best-practices/SKILL.md`: cargar antes de diseñar o cambiar esquemas, migraciones, SQL, políticas RLS, índices, funciones o datos en Postgres; también al diagnosticar rendimiento, bloqueos o visibilidad de filas.
@@ -58,6 +66,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - También se puede invocar directamente con `@spec-verifier` indicando la ruta de la spec.
 - Los artefactos de Playwright se guardan exclusivamente en `.playwright-mcp/`.
 - Después de verificar, marca con `[X]` únicamente los criterios confirmados y deja `[ ]` los no verificados o fallidos.
+
+## Accesibilidad
+- El agente `accessibility-checker` (`.opencode/agent/accessibility-checker.md`) audita y corrige accesibilidad WCAG 2.2 nivel AA en los archivos indicados.
+- Se invoca con `@accessibility-checker` indicando archivos, rutas o globs, o con el comando `/a11y-check <ruta>`. Si no se indican archivos, pregunta cuáles revisar; nunca audita el repositorio completo por iniciativa propia.
+- Valida cada criterio con Context7 (WCAG 2.2 de W3C) y verifica en navegador real con Playwright y `axe-core`, que ya viene en `node_modules`; no agrega dependencias.
+- Puede corregir código, pero pregunta antes de cambios que alteren comportamiento, identidad visual o estructura de componentes compartidos.
+- Los artefactos de Playwright y los scripts temporales se guardan exclusivamente en `.playwright-mcp/`.
+- Auditar archivos concretos no certifica la conformidad AA de toda la aplicación.
 
 ## Reglas de código
 - Usar código limpio, nombres, funciones, variables en inglés

@@ -37,7 +37,7 @@ export function UserAvatar({
   return (
     <div
       aria-hidden="true"
-      className={`${baseClassName} flex items-center justify-center bg-[#F2937A] font-[family-name:var(--font-fredoka)] text-base font-semibold text-white`}
+      className={`${baseClassName} flex items-center justify-center bg-[#F2937A] font-[family-name:var(--font-fredoka)] text-base font-semibold text-ink`}
     >
       {getInitials(fullName)}
     </div>

@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { isPublicPath } from "@/utils/auth/routes";
+import { isPublicPath, keepsRecoverySession } from "@/utils/auth/routes";
 import { updateSession } from "@/utils/supabase/middleware";
 
 const CACHE_HEADERS = ["cache-control", "expires", "pragma"] as const;
@@ -34,7 +34,7 @@ export async function proxy(request: NextRequest) {
     return redirectWithSession(loginUrl, response);
   }
 
-  if (isAuthenticated && isPublic) {
+  if (isAuthenticated && isPublic && !keepsRecoverySession(pathname)) {
     return redirectWithSession(new URL("/", request.url), response);
   }
 
