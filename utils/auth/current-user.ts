@@ -13,7 +13,6 @@ type ProfileRow = {
   avatar_url?: string | null;
   daycare_id?: string | null;
 };
-
 function toUserRole(value: string | null): UserRole | null {
   if (value === "staff" || value === "parent" || value === "admin") return value;
 
@@ -29,8 +28,14 @@ function normalizeDaycareName(value: EmbeddedDaycare) {
   return value.name;
 }
 
-function toProfile(row: ProfileRow, daycareName: string | null): UserProfile {
+function toProfile(
+  row: ProfileRow,
+  daycareName: string | null,
+  userId: string | null,
+): UserProfile {
   return {
+    userId,
+    daycareId: row.daycare_id ?? null,
     fullName: row.full_name?.trim() || "Usuario",
     role: toUserRole(row.role),
     roleLabel: row.role ? (ROLE_LABELS[row.role] ?? row.role) : "",
@@ -53,14 +58,14 @@ export async function getCurrentProfile(): Promise<UserProfile | null> {
 
     const { data, error } = await supabase
       .from("users")
-      .select("full_name, role, avatar_url, daycares(name)")
+      .select("full_name, role, avatar_url, daycare_id, daycares(name)")
       .eq("id", userId)
       .maybeSingle();
 
     if (!error && data) {
       const row = data as ProfileRow & { daycares: EmbeddedDaycare };
 
-      return toProfile(row, normalizeDaycareName(row.daycares));
+      return toProfile(row, normalizeDaycareName(row.daycares), userId);
     }
 
     const { data: fallbackData, error: fallbackError } = await supabase
@@ -70,7 +75,15 @@ export async function getCurrentProfile(): Promise<UserProfile | null> {
       .maybeSingle();
 
     if (fallbackError || !fallbackData) {
-      return { fullName: "Usuario", role: null, roleLabel: "", daycareName: null, avatarUrl: null };
+      return {
+        userId: null,
+        daycareId: null,
+        fullName: "Usuario",
+        role: null,
+        roleLabel: "",
+        daycareName: null,
+        avatarUrl: null,
+      };
     }
 
     const row = fallbackData as ProfileRow;
@@ -88,7 +101,7 @@ export async function getCurrentProfile(): Promise<UserProfile | null> {
       }
     }
 
-    return toProfile(row, daycareName);
+    return toProfile(row, daycareName, userId);
   } catch {
     return null;
   }

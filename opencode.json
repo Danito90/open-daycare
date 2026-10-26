@@ -16,6 +16,10 @@
     "a11y": {
       "description": "Crea especificaciones de accesibilidad",
       "template": "Carga y sigue la skill a11y en .agents/skills/a11y/SKILL.md.\n\nFeature: $ARGUMENTS"
+    },
+    "grill-me": {
+      "description": "Crea un cuestionario de preguntas y respuestas para evaluar la comprensión de un tema",
+      "template": "Carga y sigue la skill grill-me en .agents/skills/grill-me/SKILL.md.\n\nFeature: $ARGUMENTS"
     }
   },
   "mcp": {
@@ -27,7 +31,7 @@
   },
   "references": {
     "db-schema": {
-      "path": "../07-DB-Schema",
+      "path": "../09-OpenDayCare/07-DB-Schema",
       "description": "Schema de la base de datos, tablas, columnas y referencias a crear. esto no esta implementado en la base de datos, solo es para referenciar."
     }
   },

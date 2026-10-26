@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Fredoka, Nunito } from "next/font/google";
 import { getCurrentProfile } from "@/utils/auth/current-user";
-import { FeedProvider } from "./components/feed-provider";
 import { UserProvider } from "./components/user-provider";
 import "./globals.css";
 
@@ -29,9 +28,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${fredoka.variable} ${nunito.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <UserProvider profile={profile}>
-          <FeedProvider>{children}</FeedProvider>
-        </UserProvider>
+        <UserProvider profile={profile}>{children}</UserProvider>
       </body>
     </html>
   );
