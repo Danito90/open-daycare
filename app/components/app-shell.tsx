@@ -82,11 +82,11 @@ function UserBlock({ mobile = false }: { mobile?: boolean }) {
   );
 }
 
-function Sidebar({ active, onNewPublication }: { active: NavigationKey; onNewPublication?: () => void }) {
+function Sidebar({ active, onNewPublication, canPublish }: { active: NavigationKey; onNewPublication?: () => void; canPublish: boolean }) {
   return (
     <aside className="sticky top-0 hidden h-screen w-[248px] flex-none flex-col border-r border-[#ECE0D0] bg-[#FFFDF9] px-4 pb-4 pt-6 md:flex">
       <Brand />
-      <CreatePublicationTrigger onClick={onNewPublication} />
+      {canPublish ? <CreatePublicationTrigger onClick={onNewPublication} /> : null}
       <Navigation active={active} />
       <UserBlock />
     </aside>
@@ -95,11 +95,13 @@ function Sidebar({ active, onNewPublication }: { active: NavigationKey; onNewPub
 
 export function AppShell({ active, children, onNewPublication }: { active: NavigationKey; children: React.ReactNode; onNewPublication?: () => void }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const user = useUser();
+  const canPublish = user?.role === "staff" || user?.role === "admin";
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
     <div className="flex min-h-screen bg-[#F6ECDF]">
-      <Sidebar active={active} onNewPublication={onNewPublication} />
+      <Sidebar active={active} canPublish={canPublish} onNewPublication={onNewPublication} />
       <button
         className="fixed left-[18px] top-[18px] z-20 flex h-[42px] w-[42px] items-center justify-center rounded-[13px] border border-[#ECE0D0] bg-[#FFFDF9] text-brand shadow-[0_5px_16px_-10px_rgba(120,90,60,.6)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand md:hidden"
         type="button"
@@ -120,7 +122,9 @@ export function AppShell({ active, children, onNewPublication }: { active: Navig
                 <CloseIcon className="h-4 w-4" />
               </button>
             </div>
-            <div onClick={closeMobileMenu}><CreatePublicationTrigger onClick={onNewPublication} /></div>
+            {canPublish ? (
+              <div onClick={closeMobileMenu}><CreatePublicationTrigger onClick={onNewPublication} /></div>
+            ) : null}
             <Navigation active={active} onNavigate={closeMobileMenu} />
             <UserBlock mobile />
           </aside>
