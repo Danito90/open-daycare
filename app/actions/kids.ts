@@ -79,7 +79,7 @@ export async function createKid(_previousState: AddKidState, formData: FormData)
     return { errors: { roomId: "Elegí una sala de tu guardería." } };
   }
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("children")
     .insert({
       room_id: roomId,
@@ -87,17 +87,15 @@ export async function createKid(_previousState: AddKidState, formData: FormData)
       birth_date: birthDate,
       medical_notes: medicalNotes || null,
       allergy_tags: allergyTags,
-    })
-    .select("id")
-    .single();
+    });
 
-  if (error || !data) {
+  if (error) {
     return { formError: INSERT_ERROR_MESSAGES[error?.code ?? ""] ?? "No pudimos guardar el niño. Intentá de nuevo." };
   }
 
   revalidatePath("/kids");
 
-  return { savedKidId: (data as { id: string }).id };
+  return { saved: true };
 }
 
 export async function updatePhotoConsent(
