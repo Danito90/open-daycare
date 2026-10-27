@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { isStaffRole } from "@/utils/auth/roles";
 import { sendInvitationEmail } from "@/utils/email/send-invitation";
 import {
   isRelationshipType,
@@ -130,7 +131,7 @@ export async function createInvitation(
 
   const role = (profile as StaffProfile | null)?.role;
 
-  if (role !== "staff" && role !== "admin") {
+  if (!isStaffRole(role)) {
     return { formError: "Tu perfil no tiene permiso para invitar padres." };
   }
 

@@ -1,3 +1,4 @@
+import { isStaffRole } from "@/utils/auth/roles";
 import { getCurrentProfile } from "@/utils/auth/current-user";
 import { formatHeaderDate } from "@/utils/posts/format-date";
 import { getAudienceOptions, getFeed, getFeedSummary } from "@/utils/posts/queries";
@@ -8,7 +9,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
   const params = await searchParams;
   const cursor = typeof params.cursor === "string" ? params.cursor : undefined;
   const profile = await getCurrentProfile();
-  const canPublish = profile?.role === "staff" || profile?.role === "admin";
+  const canPublish = isStaffRole(profile?.role);
 
   const [feed, summary, audienceOptions] = await Promise.all([
     getFeed(cursor),

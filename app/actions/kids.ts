@@ -149,6 +149,7 @@ export async function updatePhotoConsent(
 
   revalidatePath(`/kids/${childId}`);
   revalidatePath("/kids");
+  revalidatePath("/cuenta");
 
   return { saved: true };
 }

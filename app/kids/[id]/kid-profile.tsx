@@ -6,14 +6,11 @@ import { RELATIONSHIP_LABELS, type LinkedParent } from "@/utils/invitations/type
 import { avatarColors, calculateAge, formatAllergiesAndNotes, formatBirthDate, formatEnrollmentDate, initialOf } from "@/utils/kids/format";
 import type { Kid } from "@/utils/kids/types";
 import { AppShell } from "../../components/app-shell";
-import { ArrowLeftIcon, PlusIcon, SunIcon, WarningIcon } from "../../components/icons";
-import { useUser } from "../../components/user-provider";
+import { ArrowLeftIcon, PlusIcon, WarningIcon } from "../../components/icons";
 import { EditPhotoConsentModal } from "../EditPhotoConsentModal";
 import { LinkParentModal } from "../LinkParentModal";
 
 export function KidProfile({ kid, parents }: { kid: Kid; parents: LinkedParent[] }) {
-  const user = useUser();
-  const isParent = user?.role === "parent";
   const [isLinkParentModalOpen, setIsLinkParentModalOpen] = useState(false);
   const [isPhotoConsentModalOpen, setIsPhotoConsentModalOpen] = useState(false);
   const avatar = avatarColors(kid.id);
@@ -41,14 +38,11 @@ export function KidProfile({ kid, parents }: { kid: Kid; parents: LinkedParent[]
               </div>
             </div>
             <div className="flex w-full flex-none flex-col gap-3.5 lg:w-[300px]">
-              <a className="flex w-full items-center justify-center gap-2 rounded-[14px] bg-[#3F362E] p-[13px] text-[15px] font-extrabold !text-white" href="#resumen"><SunIcon className="h-[18px] w-[18px] !stroke-white" />Resumen del día</a>
               <div className="rounded-2xl border border-[#ECE0D0] bg-[#FFFDF9] p-4 px-[18px]">
                 <div className="mb-3.5 text-[12.5px] font-extrabold tracking-[.8px] text-ink-soft">PADRES VINCULADOS</div>
                 <div className="flex flex-col gap-3.5">
                   {parents.map((parent) => <ParentRow key={parent.id} parent={parent} />)}
-                  {!isParent ? (
-                    <button className="flex items-center gap-3 pt-2 text-left text-[14.5px] font-extrabold text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" type="button" onClick={() => setIsLinkParentModalOpen(true)}><span className="flex h-10 w-10 flex-none items-center justify-center rounded-full border-[1.5px] border-dashed border-[#D8CBBA] text-ink-soft"><PlusIcon className="h-[18px] w-[18px] stroke-[2.2]" /></span>Vincular otro padre</button>
-                  ) : null}
+                  <button className="flex items-center gap-3 pt-2 text-left text-[14.5px] font-extrabold text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" type="button" onClick={() => setIsLinkParentModalOpen(true)}><span className="flex h-10 w-10 flex-none items-center justify-center rounded-full border-[1.5px] border-dashed border-[#D8CBBA] text-ink-soft"><PlusIcon className="h-[18px] w-[18px] stroke-[2.2]" /></span>Vincular otro padre</button>
                 </div>
               </div>
             </div>
