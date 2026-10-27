@@ -113,8 +113,10 @@ Abre http://localhost:3000. Sin sesión, `proxy.ts` redirige a `/login?next=...`
 | `/login` | Inicio de sesión |
 | `/activar-cuenta` | Activación de cuenta con código de invitación |
 | `/` | Feed de publicaciones (home) |
-| `/kids` | Listado de niños por sala |
-| `/kids/[id]` | Perfil del niño, consentimiento de fotos y vínculo con padres |
+| `/kids` | Listado de niños por sala (solo staff/admin) |
+| `/kids/[id]` | Perfil del niño, consentimiento de fotos y vínculo con padres (solo staff/admin) |
+| `/cuenta` | Mi cuenta: perfil, notificaciones, hijos y sesión |
+| `/resumen` | Resumen del día de un niño (solo familia) |
 
 ### Scripts
 

@@ -60,3 +60,28 @@ export function formatPostDate(iso: string, now: Date = new Date()): string {
 export function formatHeaderDate(now: Date = new Date()): string {
   return `${clean(weekdayFormatter.format(now))} ${monthDay(now)}`;
 }
+
+export function formatPostTime(iso: string): string {
+  const date = new Date(iso);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  return time(date);
+}
+
+export function formatSummaryDate(now: Date = new Date()): string {
+  const parts = new Intl.DateTimeFormat("es-MX", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: DAYCARE_TIME_ZONE,
+  }).formatToParts(now);
+
+  const values: Record<string, string> = {};
+
+  for (const part of parts) {
+    if (part.type !== "literal") values[part.type] = part.value;
+  }
+
+  return `${values.weekday} ${values.day} de ${values.month}`;
+}

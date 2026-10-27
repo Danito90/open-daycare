@@ -3,25 +3,35 @@
 import { useState } from "react";
 import Link from "next/link";
 import { signOut } from "@/app/actions/auth";
+import { isStaffRole } from "@/utils/auth/roles";
 import { daycareDisplayName } from "@/utils/auth/display";
-import { BellIcon, CloseIcon, HomeIcon, LogoutIcon, MenuIcon, PeopleIcon, PlusIcon, SunIcon, UserIcon } from "./icons";
+import { CloseIcon, HomeIcon, LogoutIcon, MenuIcon, PeopleIcon, PlusIcon, SunIcon, UserIcon } from "./icons";
 import { UserAvatar } from "./user-avatar";
 import { useUser } from "./user-provider";
 
-type NavigationKey = "feed" | "kids" | "notices" | "account";
+type NavigationKey = "feed" | "kids" | "resumen" | "account";
 
-const navigationItems = [
+const staffNavigation = [
   { key: "feed" as const, label: "Feed", href: "/", Icon: HomeIcon },
   { key: "kids" as const, label: "Niños", href: "/kids", Icon: PeopleIcon },
-  { key: "notices" as const, label: "Avisos", href: "#avisos", Icon: BellIcon },
-  { key: "account" as const, label: "Mi cuenta", href: "#cuenta", Icon: UserIcon },
+  { key: "account" as const, label: "Mi cuenta", href: "/cuenta", Icon: UserIcon },
+];
+
+const familyNavigation = [
+  { key: "feed" as const, label: "Feed", href: "/", Icon: HomeIcon },
+  { key: "resumen" as const, label: "Resumen del día", href: "/resumen", Icon: SunIcon },
+  { key: "account" as const, label: "Mi cuenta", href: "/cuenta", Icon: UserIcon },
 ];
 
 function Navigation({ active, onNavigate }: { active: NavigationKey; onNavigate?: () => void }) {
+  const user = useUser();
+  const navigationItems = isStaffRole(user?.role) ? staffNavigation : familyNavigation;
+
   return (
     <nav className="flex flex-1 flex-col gap-1" aria-label="Navegación principal">
       {navigationItems.map(({ key, label, href, Icon }) => (
         <Link
+          aria-current={key === active ? "page" : undefined}
           className={`flex items-center gap-3 rounded-xl px-3 py-[11px] text-[14.5px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${
             key === active ? "bg-[#FBE3D8] font-extrabold text-brand" : "font-semibold text-ink-soft hover:bg-[#F6ECDF]"
           }`}
@@ -39,7 +49,8 @@ function Navigation({ active, onNavigate }: { active: NavigationKey; onNavigate?
 
 function Brand() {
   const user = useUser();
-  const daycareName = daycareDisplayName(user?.daycareName);
+  const isStaff = isStaffRole(user?.role);
+  const subtitle = isStaff ? daycareDisplayName(user?.daycareName) : "Familia";
 
   return (
     <Link className="flex items-center gap-[11px] px-2 pb-[22px] pt-1" href="/">
@@ -48,17 +59,21 @@ function Brand() {
       </span>
       <span>
         <strong className="block font-[family-name:var(--font-fredoka)] text-[17px] font-semibold leading-none text-ink-strong">OpenDayCare</strong>
-        {daycareName ? <small className="mt-0.5 block truncate text-[11.5px] text-ink-soft">{daycareName}</small> : null}
+        {subtitle ? <small className="mt-0.5 block truncate text-[11.5px] text-ink-soft">{subtitle}</small> : null}
       </span>
     </Link>
   );
 }
 
-function CreatePublicationTrigger({ onClick }: { onClick?: () => void }) {
+function CreatePublicationTrigger({ onClick }: { onClick: () => void }) {
   const className = "mb-[18px] flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-b from-[#F4977E] to-[#EE8164] p-3 text-[14.5px] font-extrabold text-ink shadow-[0_8px_18px_-8px_rgba(238,129,100,.75)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
-  const content = <><PlusIcon className="h-[17px] w-[17px] stroke-[2.4]" />Nueva publicación</>;
 
-  return onClick ? <button className={className} type="button" onClick={onClick}>{content}</button> : <a className={className} href="#nueva-publicacion">{content}</a>;
+  return (
+    <button className={className} type="button" onClick={onClick}>
+      <PlusIcon className="h-[17px] w-[17px] stroke-[2.4]" />
+      Nueva publicación
+    </button>
+  );
 }
 
 function UserBlock({ mobile = false }: { mobile?: boolean }) {
@@ -82,11 +97,11 @@ function UserBlock({ mobile = false }: { mobile?: boolean }) {
   );
 }
 
-function Sidebar({ active, onNewPublication, canPublish }: { active: NavigationKey; onNewPublication?: () => void; canPublish: boolean }) {
+function Sidebar({ active, onNewPublication }: { active: NavigationKey; onNewPublication?: () => void }) {
   return (
     <aside className="sticky top-0 hidden h-screen w-[248px] flex-none flex-col border-r border-[#ECE0D0] bg-[#FFFDF9] px-4 pb-4 pt-6 md:flex">
       <Brand />
-      {canPublish ? <CreatePublicationTrigger onClick={onNewPublication} /> : null}
+      {onNewPublication ? <CreatePublicationTrigger onClick={onNewPublication} /> : null}
       <Navigation active={active} />
       <UserBlock />
     </aside>
@@ -96,12 +111,12 @@ function Sidebar({ active, onNewPublication, canPublish }: { active: NavigationK
 export function AppShell({ active, children, onNewPublication }: { active: NavigationKey; children: React.ReactNode; onNewPublication?: () => void }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const user = useUser();
-  const canPublish = user?.role === "staff" || user?.role === "admin";
+  const canPublish = isStaffRole(user?.role) && Boolean(onNewPublication);
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
     <div className="flex min-h-screen bg-[#F6ECDF]">
-      <Sidebar active={active} canPublish={canPublish} onNewPublication={onNewPublication} />
+      <Sidebar active={active} onNewPublication={canPublish ? onNewPublication : undefined} />
       <button
         className="fixed left-[18px] top-[18px] z-20 flex h-[42px] w-[42px] items-center justify-center rounded-[13px] border border-[#ECE0D0] bg-[#FFFDF9] text-brand shadow-[0_5px_16px_-10px_rgba(120,90,60,.6)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand md:hidden"
         type="button"
@@ -122,7 +137,7 @@ export function AppShell({ active, children, onNewPublication }: { active: Navig
                 <CloseIcon className="h-4 w-4" />
               </button>
             </div>
-            {canPublish ? (
+            {canPublish && onNewPublication ? (
               <div onClick={closeMobileMenu}><CreatePublicationTrigger onClick={onNewPublication} /></div>
             ) : null}
             <Navigation active={active} onNavigate={closeMobileMenu} />

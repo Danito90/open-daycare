@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { isStaffRole } from "@/utils/auth/roles";
 import { createClient } from "@/utils/supabase/server";
 import { isUuid } from "@/utils/kids/queries";
 import { isPostTypeValue, type PostTypeValue } from "@/utils/posts/types";
@@ -204,7 +205,7 @@ export async function createPost(
     return { formError: "Tu perfil está incompleto. Contactá a la guardería." };
   }
 
-  if (role !== "staff" && role !== "admin") {
+  if (!isStaffRole(role)) {
     return { formError: "Solo el personal de la guardería puede publicar." };
   }
 
