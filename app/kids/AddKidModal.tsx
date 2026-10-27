@@ -31,14 +31,14 @@ export function AddKidModal({ rooms, today, onClose }: AddKidModalProps) {
   const [state, formAction, isPending] = useActionState(createKid, {});
   const [form, setForm] = useState(initialValues);
   const [selectedTags, setSelectedTags] = useState<AllergyTag[]>([]);
-  const savedKidId = state.savedKidId;
+  const saved = state.saved;
 
   useEffect(() => {
-    if (!savedKidId) return;
+    if (!saved) return;
 
     router.refresh();
     onClose();
-  }, [savedKidId, onClose, router]);
+  }, [saved, onClose, router]);
 
   function updateField(field: keyof FormValues, value: string) {
     setForm((current) => ({ ...current, [field]: value }));

@@ -32,5 +32,5 @@ export type UpdatePhotoConsentState = {
 export type AddKidState = {
   errors?: { name?: string; birthDate?: string; roomId?: string };
   formError?: string;
-  savedKidId?: string;
+  saved?: boolean;
 };
