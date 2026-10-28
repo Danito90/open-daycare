@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { isValidIsoDate } from "@/utils/kids/format";
 import { isUuid } from "@/utils/kids/queries";
-import { isAllergyTag, type AddKidState, type UpdatePhotoConsentState } from "@/utils/kids/types";
+import { isStaffRole } from "@/utils/auth/roles";
+import { getCurrentProfile } from "@/utils/auth/current-user";
+import { isAllergyTag, type AddKidState, type EditKidState, type UpdatePhotoConsentState } from "@/utils/kids/types";
 import { createClient } from "@/utils/supabase/server";
 
 const INSERT_ERROR_MESSAGES: Record<string, string> = {
@@ -98,6 +100,80 @@ export async function createKid(_previousState: AddKidState, formData: FormData)
   return { saved: true };
 }
 
+export async function editKid(_previousState: EditKidState, formData: FormData): Promise<EditKidState> {
+  const childId = String(formData.get("childId") ?? "").trim();
+  const name = String(formData.get("name") ?? "").trim();
+  const birthDate = String(formData.get("birthDate") ?? "").trim();
+  const enrolledAt = String(formData.get("enrolledAt") ?? "").trim();
+  const roomId = String(formData.get("roomId") ?? "").trim();
+  const medicalNotes = String(formData.get("medicalNotes") ?? "").trim();
+  const allergyTags = [...new Set(formData.getAll("allergyTags").map(String))];
+
+  if (!isUuid(childId)) {
+    return { formError: "No pudimos identificar al niño. Recargá la página e intentá de nuevo." };
+  }
+
+  const errors: NonNullable<EditKidState["errors"]> = {};
+
+  if (!name) errors.name = "Ingresá el nombre completo.";
+  if (!isValidIsoDate(birthDate) || birthDate > todayIso()) {
+    errors.birthDate = "Elegí una fecha de nacimiento válida y no futura.";
+  }
+  if (!isValidIsoDate(enrolledAt) || enrolledAt > todayIso()) {
+    errors.enrolledAt = "Elegí una fecha de ingreso válida y no futura.";
+  }
+  if (!isUuid(roomId)) errors.roomId = "Seleccioná una sala válida.";
+  if (Object.keys(errors).length > 0) return { errors };
+
+  if (!allergyTags.every(isAllergyTag)) {
+    return { formError: "Alguna etiqueta de alergia no es válida. Recargá la página e intentá de nuevo." };
+  }
+
+  const profile = await getCurrentProfile();
+
+  if (!profile?.userId || !isStaffRole(profile.role) || !profile.daycareId) {
+    return { formError: "Tu perfil no tiene permiso para editar niños." };
+  }
+
+  const supabase = await createClient();
+  const { data: room, error: roomError } = await supabase
+    .from("rooms")
+    .select("id")
+    .eq("id", roomId)
+    .eq("daycare_id", profile.daycareId)
+    .maybeSingle();
+
+  if (roomError) return { formError: "No pudimos verificar la sala. Intentá de nuevo." };
+  if (!room) return { errors: { roomId: "Elegí una sala de tu guardería." } };
+
+  const { data, error } = await supabase
+    .from("children")
+    .update({
+      full_name: name,
+      birth_date: birthDate,
+      enrolled_at: enrolledAt,
+      room_id: roomId,
+      medical_notes: medicalNotes || null,
+      allergy_tags: allergyTags,
+    })
+    .eq("id", childId)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    return { formError: error.code === "42501" ? "Tu perfil no tiene permiso para editar este niño." : "No pudimos guardar los cambios. Intentá de nuevo." };
+  }
+  if (!data) return { formError: "No pudimos encontrar a este niño en tu guardería." };
+
+  revalidatePath(`/kids/${childId}`);
+  revalidatePath("/kids");
+  revalidatePath("/cuenta");
+  revalidatePath("/resumen");
+  revalidatePath("/");
+
+  return { saved: true };
+}
+
 export async function updatePhotoConsent(
   _previousState: UpdatePhotoConsentState,
   formData: FormData,
@@ -111,6 +187,12 @@ export async function updatePhotoConsent(
 
   if (rawConsent !== "true" && rawConsent !== "false") {
     return { errors: { photoConsent: "Elegí si autorizás o no las fotos." } };
+  }
+
+  const profile = await getCurrentProfile();
+
+  if (!profile?.userId || profile.role !== "parent") {
+    return { formError: "Solo un padre vinculado puede cambiar el consentimiento." };
   }
 
   const supabase = await createClient();
