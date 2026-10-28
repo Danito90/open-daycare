@@ -1,14 +1,17 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { AppShell } from "@/app/components/app-shell";
+import { loadParentFeedPage } from "@/app/actions/posts";
 import { CameraIcon } from "@/app/components/feed-icons";
 import { UserAvatar } from "@/app/components/user-avatar";
 import { useUser } from "@/app/components/user-provider";
 import { daycareDisplayName } from "@/utils/auth/display";
-import type { AudienceOptions } from "@/utils/posts/types";
+import type { AudienceOptions, FeedPage, ParentFeedFilter, ParentFeedOptions } from "@/utils/posts/types";
 import { CreatePostModal } from "./CreatePostModal";
+import { ParentFeedSelector } from "./parent-feed-selector";
+import { PostCard } from "./post-card";
 
 type FeedShellProps = {
   canPublish: boolean;
@@ -17,6 +20,8 @@ type FeedShellProps = {
   headerDate: string;
   nextCursor: string | null;
   emptyMessage: string | null;
+  parentFeed: FeedPage | null;
+  parentOptions: ParentFeedOptions | null;
   children: ReactNode;
 };
 
@@ -27,10 +32,18 @@ export function FeedShell({
   headerDate,
   nextCursor,
   emptyMessage,
+  parentFeed,
+  parentOptions,
   children,
 }: FeedShellProps) {
   const user = useUser();
   const [isComposerOpen, setIsComposerOpen] = useState(false);
+  const [filter, setFilter] = useState<ParentFeedFilter>({ scope: "all" });
+  const [parentPosts, setParentPosts] = useState(parentFeed?.posts ?? []);
+  const [parentCursor, setParentCursor] = useState(parentFeed?.nextCursor ?? null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [feedError, setFeedError] = useState<string | null>(null);
+  const requestId = useRef(0);
   const fullName = user?.fullName?.trim() || "Usuario";
   const daycareName = daycareDisplayName(user?.daycareName);
   const childLabel = activeChildren === 1 ? "1 niño" : `${activeChildren} niños`;
@@ -38,6 +51,51 @@ export function FeedShell({
   function openComposer() {
     setIsComposerOpen(true);
   }
+
+  async function loadPage(selection: ParentFeedFilter, cursor?: string) {
+    const request = ++requestId.current;
+    setIsLoading(true);
+    setFeedError(null);
+
+    if (!cursor) {
+      setParentPosts([]);
+      setParentCursor(null);
+    }
+
+    try {
+      const result = await loadParentFeedPage(selection, cursor);
+      if (request !== requestId.current) return;
+
+      if ("error" in result) {
+        setFeedError(result.error);
+        return;
+      }
+
+      setParentPosts((previous) => {
+        if (!cursor) return result.page.posts;
+
+        const existing = new Set(previous.map((post) => post.id));
+        return [...previous, ...result.page.posts.filter((post) => !existing.has(post.id))];
+      });
+      setParentCursor(result.page.nextCursor);
+    } catch {
+      if (request === requestId.current) setFeedError("No pudimos cargar las publicaciones. Intentá de nuevo.");
+    } finally {
+      if (request === requestId.current) setIsLoading(false);
+    }
+  }
+
+  function changeFilter(selection: ParentFeedFilter) {
+    setFilter(selection);
+    void loadPage(selection);
+  }
+
+  const currentCursor = parentFeed ? parentCursor : nextCursor;
+  const message = parentFeed
+    ? filter.scope === "selected"
+      ? "No hay publicaciones para el filtro aplicado"
+      : emptyMessage
+    : emptyMessage;
 
   return (
     <AppShell active="feed" onNewPublication={canPublish ? openComposer : undefined}>
@@ -78,26 +136,63 @@ export function FeedShell({
             <span className="h-px flex-1 bg-[#E7DAC8]" />
           </div>
 
-          {emptyMessage ? (
+          {parentFeed && parentOptions && parentOptions.children.length > 0 ? (
+            <ParentFeedSelector filter={filter} onChange={changeFilter} options={parentOptions} />
+          ) : null}
+
+          {isLoading ? (
+            <p className="mb-4 text-sm text-ink-muted" role="status">
+              Cargando publicaciones…
+            </p>
+          ) : null}
+          {feedError ? (
+            <div className="mb-4 rounded-2xl border border-[#ECE0D0] bg-[#FFFDF9] p-4" role="alert">
+              <p className="m-0 text-sm text-ink-strong">{feedError}</p>
+              <button
+                className="mt-2 font-bold text-brand underline focus-visible:outline-2 focus-visible:outline-brand"
+                onClick={() => void loadPage(filter, parentPosts.length ? parentCursor ?? undefined : undefined)}
+                type="button"
+              >
+                Reintentar
+              </button>
+            </div>
+          ) : null}
+
+          {!isLoading && !feedError && (parentFeed ? parentPosts.length === 0 : Boolean(emptyMessage)) ? (
             <div className="rounded-[20px] border border-[#ECE0D0] bg-[#FFFDF9] px-6 py-10 text-center">
-              <p className="m-0 text-[15px] font-bold text-ink-strong">{emptyMessage}</p>
+              <p className="m-0 text-[15px] font-bold text-ink-strong">{message}</p>
               <p className="mt-2 mb-0 text-[13.5px] text-ink-soft">
                 Cuando haya novedades, van a aparecer acá.
               </p>
+            </div>
+          ) : parentFeed ? (
+            <div className="flex flex-col gap-4">
+              {parentPosts.map((post) => <PostCard key={post.id} post={post} />)}
             </div>
           ) : (
             <div className="flex flex-col gap-4">{children}</div>
           )}
 
-          {nextCursor ? (
+          {currentCursor && !feedError ? (
             <div className="mt-6 flex justify-center">
-              <Link
-                className="rounded-full border border-[#ECE0D0] bg-[#FFFDF9] px-5 py-2.5 text-[14px] font-extrabold text-brand underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-                href={`/?cursor=${encodeURIComponent(nextCursor)}`}
-                scroll={false}
-              >
-                Cargar más
-              </Link>
+              {parentFeed ? (
+                <button
+                  className="rounded-full border border-[#ECE0D0] bg-[#FFFDF9] px-5 py-2.5 text-[14px] font-extrabold text-brand underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:opacity-50"
+                  disabled={isLoading}
+                  onClick={() => void loadPage(filter, currentCursor)}
+                  type="button"
+                >
+                  Cargar más
+                </button>
+              ) : (
+                <Link
+                  className="rounded-full border border-[#ECE0D0] bg-[#FFFDF9] px-5 py-2.5 text-[14px] font-extrabold text-brand underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                  href={`/?cursor=${encodeURIComponent(currentCursor)}`}
+                  scroll={false}
+                >
+                  Cargar más
+                </Link>
+              )}
             </div>
           ) : null}
         </div>

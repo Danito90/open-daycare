@@ -1,7 +1,7 @@
 import { isStaffRole } from "@/utils/auth/roles";
 import { getCurrentProfile } from "@/utils/auth/current-user";
 import { formatHeaderDate } from "@/utils/posts/format-date";
-import { getAudienceOptions, getFeed, getFeedSummary } from "@/utils/posts/queries";
+import { getAudienceOptions, getFeed, getFeedPage, getFeedSummary, getParentFeedOptions } from "@/utils/posts/queries";
 import { FeedShell } from "./feed/feed-shell";
 import { PostCard } from "./feed/post-card";
 
@@ -11,10 +11,12 @@ export default async function Home({ searchParams }: PageProps<"/">) {
   const profile = await getCurrentProfile();
   const canPublish = isStaffRole(profile?.role);
 
-  const [feed, summary, audienceOptions] = await Promise.all([
-    getFeed(cursor),
+  const isParent = profile?.role === "parent";
+  const [feed, summary, audienceOptions, parentOptions] = await Promise.all([
+    isParent ? getFeedPage() : getFeed(cursor),
     getFeedSummary(),
     canPublish ? getAudienceOptions() : Promise.resolve(null),
+    isParent && profile.userId ? getParentFeedOptions(profile.userId) : Promise.resolve(null),
   ]);
 
   const emptyMessage =
@@ -34,8 +36,10 @@ export default async function Home({ searchParams }: PageProps<"/">) {
       emptyMessage={emptyMessage}
       headerDate={formatHeaderDate()}
       nextCursor={feed.nextCursor}
+      parentFeed={isParent ? feed : null}
+      parentOptions={parentOptions}
     >
-      {feed.posts.map((post) => (
+      {!isParent && feed.posts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
     </FeedShell>

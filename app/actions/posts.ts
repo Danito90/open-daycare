@@ -1,10 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getCurrentProfile } from "@/utils/auth/current-user";
 import { isStaffRole } from "@/utils/auth/roles";
 import { createClient } from "@/utils/supabase/server";
 import { isUuid } from "@/utils/kids/queries";
 import { isPostTypeValue, type PostTypeValue } from "@/utils/posts/types";
+import { getFeedPage, getParentFeedOptions } from "@/utils/posts/queries";
+import type { FeedPage, ParentFeedFilter } from "@/utils/posts/types";
 
 const MAX_PHOTOS = 4;
 const MAX_TITLE_LENGTH = 80;
@@ -17,6 +20,61 @@ const PHOTO_EXTENSIONS: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
 };
+
+export async function loadParentFeedPage(
+  filter: ParentFeedFilter,
+  cursor?: string,
+): Promise<{ page: FeedPage } | { error: string }> {
+  const profile = await getCurrentProfile();
+
+  if (profile?.role !== "parent" || !profile.userId) {
+    return { error: "No tenés permiso para consultar este feed." };
+  }
+
+  if (cursor) {
+    const parts = cursor.split("|");
+    const [timestamp, postId] = parts;
+    if (
+      cursor.length > 100 ||
+      parts.length !== 2 ||
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(timestamp ?? "") ||
+      !Number.isFinite(Date.parse(timestamp)) ||
+      !isUuid(postId ?? "")
+    ) {
+      return { error: "La página solicitada no es válida." };
+    }
+  }
+
+  if (!filter || (filter.scope !== "all" && filter.scope !== "selected")) {
+    return { error: "El filtro no es válido." };
+  }
+
+  try {
+    const options = await getParentFeedOptions(profile.userId);
+
+    if (filter.scope === "selected") {
+      if (!Array.isArray(filter.childIds) || !Array.isArray(filter.roomIds) || typeof filter.daycare !== "boolean") {
+        return { error: "El filtro no es válido." };
+      }
+
+      const allowedChildren = new Set(options.children.map((child) => child.id));
+      const allowedRooms = new Set(options.rooms.map((room) => room.id));
+
+      if (
+        filter.childIds.length + filter.roomIds.length > 100 ||
+        (!filter.daycare && filter.childIds.length === 0 && filter.roomIds.length === 0) ||
+        !filter.childIds.every((id) => typeof id === "string" && isUuid(id) && allowedChildren.has(id)) ||
+        !filter.roomIds.every((id) => typeof id === "string" && isUuid(id) && allowedRooms.has(id))
+      ) {
+        return { error: "La selección ya no está disponible. Recargá el feed." };
+      }
+    }
+
+    return { page: await getFeedPage({ cursor, filter }) };
+  } catch {
+    return { error: "No pudimos cargar las publicaciones. Intentá de nuevo." };
+  }
+}
 
 export type CreatePostState = {
   errors?: {
