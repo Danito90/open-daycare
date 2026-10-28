@@ -32,6 +32,7 @@ function toProfile(
   row: ProfileRow,
   daycareName: string | null,
   userId: string | null,
+  hasAssignedRooms: boolean,
 ): UserProfile {
   return {
     userId,
@@ -41,6 +42,7 @@ function toProfile(
     roleLabel: row.role ? (ROLE_LABELS[row.role] ?? row.role) : "",
     daycareName,
     avatarUrl: row.avatar_url?.trim() || null,
+    hasAssignedRooms,
   };
 }
 
@@ -56,6 +58,10 @@ export async function getCurrentProfile(): Promise<UserProfile | null> {
 
     if (!userId) return null;
 
+    const { data: assignedRooms, error: roomsError } = await supabase
+      .from("staff_rooms").select("room_id").eq("staff_id", userId).limit(1);
+    const hasAssignedRooms = !roomsError && Boolean(assignedRooms?.length);
+
     const { data, error } = await supabase
       .from("users")
       .select("full_name, role, avatar_url, daycare_id, daycares(name)")
@@ -65,7 +71,7 @@ export async function getCurrentProfile(): Promise<UserProfile | null> {
     if (!error && data) {
       const row = data as ProfileRow & { daycares: EmbeddedDaycare };
 
-      return toProfile(row, normalizeDaycareName(row.daycares), userId);
+      return toProfile(row, normalizeDaycareName(row.daycares), userId, row.role !== "staff" || hasAssignedRooms);
     }
 
     const { data: fallbackData, error: fallbackError } = await supabase
@@ -101,7 +107,7 @@ export async function getCurrentProfile(): Promise<UserProfile | null> {
       }
     }
 
-    return toProfile(row, daycareName, userId);
+    return toProfile(row, daycareName, userId, row.role !== "staff" || hasAssignedRooms);
   } catch {
     return null;
   }

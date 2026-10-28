@@ -8,4 +8,5 @@ export type UserProfile = {
   roleLabel: string;
   daycareName: string | null;
   avatarUrl: string | null;
+  hasAssignedRooms?: boolean;
 };

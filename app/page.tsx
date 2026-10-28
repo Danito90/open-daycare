@@ -1,14 +1,14 @@
 import { isStaffRole } from "@/utils/auth/roles";
-import { getCurrentProfile } from "@/utils/auth/current-user";
 import { formatHeaderDate } from "@/utils/posts/format-date";
 import { getAudienceOptions, getFeed, getFeedPage, getFeedSummary, getParentFeedOptions } from "@/utils/posts/queries";
 import { FeedShell } from "./feed/feed-shell";
 import { PostCard } from "./feed/post-card";
+import { requireOperationalStaff } from "@/utils/staff/access";
 
 export default async function Home({ searchParams }: PageProps<"/">) {
   const params = await searchParams;
   const cursor = typeof params.cursor === "string" ? params.cursor : undefined;
-  const profile = await getCurrentProfile();
+  const profile = await requireOperationalStaff();
   const canPublish = isStaffRole(profile?.role);
 
   const isParent = profile?.role === "parent";

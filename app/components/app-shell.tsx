@@ -9,12 +9,18 @@ import { CloseIcon, HomeIcon, LogoutIcon, MenuIcon, PeopleIcon, PlusIcon, SunIco
 import { UserAvatar } from "./user-avatar";
 import { useUser } from "./user-provider";
 
-type NavigationKey = "feed" | "kids" | "resumen" | "account";
+type NavigationKey = "feed" | "kids" | "resumen" | "account" | "personal";
 
 const staffNavigation = [
   { key: "feed" as const, label: "Feed", href: "/", Icon: HomeIcon },
   { key: "kids" as const, label: "Niños", href: "/kids", Icon: PeopleIcon },
   { key: "account" as const, label: "Mi cuenta", href: "/cuenta", Icon: UserIcon },
+];
+
+const adminNavigation = [
+  ...staffNavigation.slice(0, 2),
+  { key: "personal" as const, label: "Personal", href: "/personal", Icon: PeopleIcon },
+  staffNavigation[2],
 ];
 
 const familyNavigation = [
@@ -23,9 +29,13 @@ const familyNavigation = [
   { key: "account" as const, label: "Mi cuenta", href: "/cuenta", Icon: UserIcon },
 ];
 
+const accountNavigation = [staffNavigation[2]];
+
 function Navigation({ active, onNavigate }: { active: NavigationKey; onNavigate?: () => void }) {
   const user = useUser();
-  const navigationItems = isStaffRole(user?.role) ? staffNavigation : familyNavigation;
+  const navigationItems = user?.role === "admin" ? adminNavigation
+    : user?.role === "staff" && !user.hasAssignedRooms ? accountNavigation
+    : isStaffRole(user?.role) ? staffNavigation : familyNavigation;
 
   return (
     <nav className="flex flex-1 flex-col gap-1" aria-label="Navegación principal">
@@ -53,7 +63,7 @@ function Brand() {
   const subtitle = isStaff ? daycareDisplayName(user?.daycareName) : "Familia";
 
   return (
-    <Link className="flex items-center gap-[11px] px-2 pb-[22px] pt-1" href="/">
+    <Link className="flex items-center gap-[11px] px-2 pb-[22px] pt-1" href={user?.role === "staff" && !user.hasAssignedRooms ? "/cuenta" : "/"}>
       <span className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-xl bg-gradient-to-br from-[#F8C3A8] to-[#F2937A] text-ink">
         <SunIcon className="h-[21px] w-[21px] stroke-[2.2]" />
       </span>
@@ -111,7 +121,7 @@ function Sidebar({ active, onNewPublication }: { active: NavigationKey; onNewPub
 export function AppShell({ active, children, onNewPublication }: { active: NavigationKey; children: React.ReactNode; onNewPublication?: () => void }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const user = useUser();
-  const canPublish = isStaffRole(user?.role) && Boolean(onNewPublication);
+  const canPublish = isStaffRole(user?.role) && user?.hasAssignedRooms !== false && Boolean(onNewPublication);
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
