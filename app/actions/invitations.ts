@@ -14,6 +14,7 @@ import { getInvitationByCode } from "@/utils/invitations/queries";
 import { isUuid } from "@/utils/kids/queries";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { createClient } from "@/utils/supabase/server";
+import { hasOperationalAccess } from "@/utils/staff/access";
 
 const CODE_PATTERN = /^[A-Z2-9]{5}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -133,6 +134,9 @@ export async function createInvitation(
 
   if (!isStaffRole(role)) {
     return { formError: "Tu perfil no tiene permiso para invitar padres." };
+  }
+  if (role === "staff" && !(await hasOperationalAccess(userId))) {
+    return { formError: "Tu perfil no tiene salas asignadas para invitar padres." };
   }
 
   const { data: childData, error: childError } = await supabase

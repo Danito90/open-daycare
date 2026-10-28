@@ -7,6 +7,7 @@ import { isStaffRole } from "@/utils/auth/roles";
 import { getCurrentProfile } from "@/utils/auth/current-user";
 import { isAllergyTag, type AddKidState, type EditKidState, type UpdatePhotoConsentState } from "@/utils/kids/types";
 import { createClient } from "@/utils/supabase/server";
+import { hasOperationalAccess } from "@/utils/staff/access";
 
 const INSERT_ERROR_MESSAGES: Record<string, string> = {
   "42501": "Tu perfil no tiene permiso para agregar niños.",
@@ -56,6 +57,12 @@ export async function createKid(_previousState: AddKidState, formData: FormData)
   }
 
   const supabase = await createClient();
+
+  const current = await getCurrentProfile();
+  if (!current?.userId || !isStaffRole(current.role) ||
+    (current.role === "staff" && !(await hasOperationalAccess(current.userId)))) {
+    return { formError: "Tu perfil no tiene salas asignadas para agregar niños." };
+  }
 
   try {
     const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
@@ -133,6 +140,9 @@ export async function editKid(_previousState: EditKidState, formData: FormData):
 
   if (!profile?.userId || !isStaffRole(profile.role) || !profile.daycareId) {
     return { formError: "Tu perfil no tiene permiso para editar niños." };
+  }
+  if (profile.role === "staff" && !(await hasOperationalAccess(profile.userId))) {
+    return { formError: "Tu perfil no tiene salas asignadas para editar niños." };
   }
 
   const supabase = await createClient();

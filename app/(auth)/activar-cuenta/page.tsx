@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getInvitationSummary } from "@/utils/invitations/queries";
 import type { InvitationSummary } from "@/utils/invitations/types";
+import { getStaffInvitationSummary } from "@/utils/staff/queries";
 import { ActivateAccountForm } from "./activate-form";
 
 export const metadata: Metadata = {
@@ -13,14 +14,16 @@ export default async function ActivateAccountPage({ searchParams }: PageProps<"/
   const code = (rawCode ?? "").trim().toUpperCase();
 
   let summary: InvitationSummary | null = null;
+  let staffSummary: Awaited<ReturnType<typeof getStaffInvitationSummary>> = null;
 
   if (code) {
     try {
-      summary = await getInvitationSummary(code);
+      if (/^[01]/.test(code)) staffSummary = await getStaffInvitationSummary(code);
+      else summary = await getInvitationSummary(code);
     } catch {
       summary = null;
     }
   }
 
-  return <ActivateAccountForm initialCode={code} summary={summary} />;
+  return <ActivateAccountForm initialCode={code} summary={summary} staffSummary={staffSummary} />;
 }

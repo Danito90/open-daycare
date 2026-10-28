@@ -7,6 +7,8 @@ import { createClient } from "@/utils/supabase/server";
 import { isUuid } from "@/utils/kids/queries";
 import { isPostTypeValue, type PostTypeValue } from "@/utils/posts/types";
 import { getFeedPage, getParentFeedOptions } from "@/utils/posts/queries";
+import { hasOperationalAccess } from "@/utils/staff/access";
+import { createAdminClient } from "@/utils/supabase/admin";
 import type { FeedPage, ParentFeedFilter } from "@/utils/posts/types";
 
 const MAX_PHOTOS = 4;
@@ -138,12 +140,6 @@ function parsePhotoMeta(raw: string, count: number): PhotoMeta[] {
   });
 }
 
-async function removeUploadedPhotos(supabase: ServerClient, paths: string[]) {
-  if (paths.length === 0) return;
-
-  await supabase.storage.from("post-photos").remove(paths);
-}
-
 async function findExistingPost(supabase: ServerClient, authorId: string, idempotencyKey: string) {
   const { data } = await supabase
     .from("posts")
@@ -266,6 +262,12 @@ export async function createPost(
   if (!isStaffRole(role)) {
     return { formError: "Solo el personal de la guardería puede publicar." };
   }
+  if (role === "staff" && !(await hasOperationalAccess(userId))) {
+    return { formError: "No tenés salas asignadas para publicar." };
+  }
+  if (role === "staff" && audienceScope === "daycare") {
+    return { errors: { audience: "Solo el administrador puede publicar anuncios generales." } };
+  }
 
   const existingPostId = await findExistingPost(supabase, userId, idempotencyKey);
 
@@ -340,6 +342,15 @@ export async function createPost(
     }
   }
 
+  let cleanupClient: ReturnType<typeof createAdminClient> | null = null;
+  if (photoFiles.length > 0) {
+    try {
+      cleanupClient = createAdminClient();
+    } catch {
+      return { formError: "No pudimos preparar la publicación con fotos. Contactá a soporte." };
+    }
+  }
+
   const postId = crypto.randomUUID();
   const uploadedPaths: string[] = [];
   const photoRows: {
@@ -351,45 +362,18 @@ export async function createPost(
     position: number;
   }[] = [];
 
-  for (const [position, file] of photoFiles.entries()) {
-    const extension = PHOTO_EXTENSIONS[file.type];
-    const storagePath = `${daycareId}/${postId}/${position}.${extension}`;
-    const { error } = await supabase.storage.from("post-photos").upload(storagePath, file, {
-      contentType: file.type,
-      upsert: false,
+  const { error: postError } = audienceScope === "children"
+    ? await supabase.rpc("publish_individual_post", {
+      p_id: postId, p_type: type, p_title: title || null, p_body: body,
+      p_idempotency_key: idempotencyKey, p_child_ids: childIds,
+    })
+    : await supabase.from("posts").insert({
+      id: postId, daycare_id: daycareId, author_id: userId,
+      room_id: audienceScope === "room" ? roomId : null,
+      type, title: title || null, body, idempotency_key: idempotencyKey,
     });
-
-    if (error) {
-      await removeUploadedPhotos(supabase, uploadedPaths);
-
-      return { formError: "No pudimos subir las fotos. Intentá de nuevo." };
-    }
-
-    uploadedPaths.push(storagePath);
-    photoRows.push({
-      post_id: postId,
-      storage_path: storagePath,
-      alt: photoMeta[position]?.alt ?? null,
-      width: photoMeta[position]?.width ?? null,
-      height: photoMeta[position]?.height ?? null,
-      position,
-    });
-  }
-
-  const { error: postError } = await supabase.from("posts").insert({
-    id: postId,
-    daycare_id: daycareId,
-    author_id: userId,
-    room_id: audienceScope === "room" ? roomId : null,
-    type,
-    title: title || null,
-    body,
-    idempotency_key: idempotencyKey,
-  });
 
   if (postError) {
-    await removeUploadedPhotos(supabase, uploadedPaths);
-
     if (postError.code === "23505") {
       const existingId = await findExistingPost(supabase, userId, idempotencyKey);
 
@@ -403,27 +387,38 @@ export async function createPost(
     return { formError: "No pudimos guardar la publicación. Intentá de nuevo." };
   }
 
-  if (audienceScope === "children") {
-    const { error } = await supabase
-      .from("post_children")
-      .insert(childIds.map((childId) => ({ post_id: postId, child_id: childId })));
-
-    if (error) {
-      await removeUploadedPhotos(supabase, uploadedPaths);
-
-      return {
-        formError: "No pudimos guardar la publicación. Recargá la página e intentá de nuevo.",
-      };
+  async function discardIncompletePost() {
+    if (!cleanupClient) return false;
+    if (uploadedPaths.length) {
+      const { error } = await cleanupClient.storage.from("post-photos").remove(uploadedPaths);
+      if (error) return false;
     }
+    const { error } = await cleanupClient.from("posts").delete().eq("id", postId).eq("author_id", userId);
+    return !error;
+  }
+
+  for (const [position, file] of photoFiles.entries()) {
+    const extension = PHOTO_EXTENSIONS[file.type];
+    const storagePath = `${daycareId}/${postId}/${position}.${extension}`;
+    const { error } = await supabase.storage.from("post-photos").upload(storagePath, file, {
+      contentType: file.type, upsert: false,
+    });
+    if (error) {
+      const removed = await discardIncompletePost();
+      return { formError: removed ? "No pudimos subir las fotos. Intentá de nuevo." : "No pudimos limpiar la publicación incompleta. Contactá a soporte." };
+    }
+    uploadedPaths.push(storagePath);
+    photoRows.push({ post_id: postId, storage_path: storagePath,
+      alt: photoMeta[position]?.alt ?? null, width: photoMeta[position]?.width ?? null,
+      height: photoMeta[position]?.height ?? null, position });
   }
 
   if (photoRows.length > 0) {
     const { error } = await supabase.from("post_photos").insert(photoRows);
 
     if (error) {
-      await removeUploadedPhotos(supabase, uploadedPaths);
-
-      return { formError: "No pudimos adjuntar las fotos a la publicación. Intentá de nuevo." };
+      const removed = await discardIncompletePost();
+      return { formError: removed ? "No pudimos adjuntar las fotos a la publicación. Intentá de nuevo." : "No pudimos limpiar la publicación incompleta. Contactá a soporte." };
     }
   }
 

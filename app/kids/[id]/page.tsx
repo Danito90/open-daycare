@@ -4,8 +4,10 @@ import { getCurrentProfile } from "@/utils/auth/current-user";
 import { isStaffRole } from "@/utils/auth/roles";
 import { getKidById, getRooms, isUuid } from "@/utils/kids/queries";
 import { KidProfile } from "./kid-profile";
+import { requireOperationalStaff } from "@/utils/staff/access";
 
 export default async function KidProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  await requireOperationalStaff();
   const { id } = await params;
 
   if (!isUuid(id)) {

@@ -3,14 +3,17 @@
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { activateInvitation } from "@/app/actions/invitations";
+import { activateStaffInvitation } from "@/app/actions/staff";
 import { initialOf } from "@/utils/kids/format";
 import type { ActivateAccountState, InvitationSummary } from "@/utils/invitations/types";
+import type { StaffInvitationSummary } from "@/utils/staff/types";
 
 const initialState: ActivateAccountState = {};
 
 type ActivateAccountFormProps = {
   initialCode: string;
   summary: InvitationSummary | null;
+  staffSummary: StaffInvitationSummary | null;
 };
 
 function BrandMark() {
@@ -24,11 +27,16 @@ function BrandMark() {
   );
 }
 
-export function ActivateAccountForm({ initialCode, summary }: ActivateAccountFormProps) {
-  const [state, formAction, isPending] = useActionState(activateInvitation, initialState);
+export function ActivateAccountForm({ initialCode, summary, staffSummary }: ActivateAccountFormProps) {
+  const [parentState, parentAction, parentPending] = useActionState(activateInvitation, initialState);
+  const [staffState, staffAction, staffPending] = useActionState(activateStaffInvitation, initialState);
   const [code, setCode] = useState(initialCode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const isStaffCode = /^[01]/.test(code);
+  const state = isStaffCode ? staffState : parentState;
+  const formAction = isStaffCode ? staffAction : parentAction;
+  const isPending = isStaffCode ? staffPending : parentPending;
   const errors = state.errors ?? {};
 
   return (
@@ -36,9 +44,12 @@ export function ActivateAccountForm({ initialCode, summary }: ActivateAccountFor
       <div className="w-full max-w-[440px]">
         <BrandMark />
         <h1 className="mt-[22px] font-[family-name:var(--font-fredoka)] text-[30px] font-semibold leading-[1.15] text-ink-strong sm:text-[32px]">Bienvenida a OpenDayCare</h1>
-        <p className="mb-[26px] mt-2 text-[15.5px] leading-[1.55] text-ink-muted">Te invitaron a seguir el día de tu hijo. Creá tu contraseña para activar la cuenta.</p>
+        <p className="mb-[26px] mt-2 text-[15.5px] leading-[1.55] text-ink-muted">{isStaffCode ? "Te invitaron a trabajar en una guardería. Creá tu contraseña para activar la cuenta." : "Te invitaron a seguir el día de tu hijo. Creá tu contraseña para activar la cuenta."}</p>
 
-        {summary ? (
+        {staffSummary && isStaffCode ? <div className="mb-[22px] rounded-2xl border-[1.5px] border-field-line bg-white px-4 py-3.5">
+          <div className="font-semibold text-ink-strong">{staffSummary.daycareName}</div>
+          <div className="text-sm text-ink-muted">{staffSummary.rooms.length ? `Salas: ${staffSummary.rooms.join(", ")}` : "Sin salas asignadas"}</div>
+        </div> : summary && !isStaffCode ? (
           <div className="mb-[22px] flex items-center gap-3.5 rounded-2xl border-[1.5px] border-field-line bg-white px-4 py-3.5">
             <div className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-[#A9D9E8] font-[family-name:var(--font-fredoka)] text-[19px] font-semibold text-[#196175]">{initialOf(summary.childName)}</div>
             <div className="min-w-0">
@@ -49,7 +60,7 @@ export function ActivateAccountForm({ initialCode, summary }: ActivateAccountFor
           </div>
         ) : (
           <div className="mb-[22px] rounded-2xl border-[1.5px] border-field-line bg-white px-4 py-3.5 text-[13.5px] leading-[1.45] text-ink-muted">
-            Ingresá el código de cinco caracteres que recibiste por correo para ver a tu hijo.
+            Ingresá el código de cinco caracteres que recibiste por correo.
           </div>
         )}
 
