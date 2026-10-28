@@ -34,3 +34,9 @@ export type AddKidState = {
   formError?: string;
   saved?: boolean;
 };
+
+export type EditKidState = {
+  errors?: { name?: string; birthDate?: string; enrolledAt?: string; roomId?: string };
+  formError?: string;
+  saved?: boolean;
+};
