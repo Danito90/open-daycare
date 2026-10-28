@@ -37,6 +37,15 @@ export type FeedPage = {
   nextCursor: string | null;
 };
 
+export type ParentFeedFilter =
+  | { scope: "all" }
+  | { scope: "selected"; childIds: string[]; roomIds: string[]; daycare: boolean };
+
+export type ParentFeedOptions = {
+  children: { id: string; name: string }[];
+  rooms: { id: string; name: string }[];
+};
+
 export type AudienceOption = {
   id: string;
   label: string;

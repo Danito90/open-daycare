@@ -5,6 +5,8 @@ import {
   type FeedPage,
   type FeedPhoto,
   type FeedPost,
+  type ParentFeedFilter,
+  type ParentFeedOptions,
   type PostAudience,
   type PostTypeValue,
   isPostTypeValue,
@@ -25,6 +27,11 @@ const POST_COLUMNS = `
   rooms(name),
   post_children(children(id, full_name)),
   post_photos(id, alt, width, height, storage_path, position)
+`;
+
+const FILTER_COLUMNS = `${POST_COLUMNS},
+  matching_children:post_children(),
+  general_children:post_children()
 `;
 
 type EmbeddedAuthor = { full_name: string | null; avatar_url: string | null } | { full_name: string | null; avatar_url: string | null }[] | null;
@@ -112,15 +119,72 @@ function toAudience(row: PostRow): PostAudience {
   return { scope: "daycare" };
 }
 
-export async function getFeedPage(options: { cursor?: string; limit?: number } = {}): Promise<FeedPage> {
+export async function getParentFeedOptions(parentId: string): Promise<ParentFeedOptions> {
+  const supabase = await createClient();
+  const { data: links, error: linksError } = await supabase
+    .from("parent_children")
+    .select("child_id")
+    .eq("parent_id", parentId);
+
+  if (linksError) throw new Error("No pudimos cargar tus hijos.");
+
+  const childIds = [...new Set((links ?? []).map((link) => link.child_id as string))];
+  if (childIds.length === 0) return { children: [], rooms: [] };
+
+  const { data, error } = await supabase
+    .from("children")
+    .select("id, full_name, rooms(id, name)")
+    .in("id", childIds)
+    .order("full_name");
+
+  if (error) throw new Error("No pudimos cargar tus hijos.");
+
+  const rows = (data ?? []) as {
+    id: string;
+    full_name: string;
+    rooms: { id: string; name: string } | { id: string; name: string }[] | null;
+  }[];
+  const rooms = new Map<string, string>();
+
+  for (const child of rows) {
+    const room = firstOf(child.rooms);
+    if (room) rooms.set(room.id, room.name);
+  }
+
+  return {
+    children: rows.map((child) => ({ id: child.id, name: child.full_name })),
+    rooms: [...rooms].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)),
+  };
+}
+
+export async function getFeedPage(options: {
+  cursor?: string;
+  limit?: number;
+  filter?: ParentFeedFilter;
+} = {}): Promise<FeedPage> {
   const limit = options.limit ?? FEED_PAGE_SIZE;
   const supabase = await createClient();
   let query = supabase
     .from("posts")
-    .select(POST_COLUMNS)
+    .select(options.filter?.scope === "selected" ? FILTER_COLUMNS : POST_COLUMNS)
     .order("published_at", { ascending: false })
     .order("id", { ascending: false })
     .limit(limit + 1);
+
+  if (options.filter?.scope === "selected") {
+    const { childIds, roomIds, daycare } = options.filter;
+    const conditions: string[] = [];
+
+    if (childIds.length > 0) {
+      query = query.in("matching_children.child_id", childIds);
+      conditions.push("matching_children.not.is.null");
+    }
+    if (roomIds.length > 0) conditions.push(`room_id.in.(${roomIds.join(",")})`);
+    if (daycare) conditions.push("and(type.eq.announcement,room_id.is.null,general_children.is.null)");
+
+    if (conditions.length === 0) return { posts: [], nextCursor: null };
+    query = query.or(conditions.join(","));
+  }
 
   if (options.cursor) {
     const cursor = decodeCursor(options.cursor);

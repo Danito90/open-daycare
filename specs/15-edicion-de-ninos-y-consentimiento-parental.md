@@ -1,6 +1,6 @@
 # SPEC 15 — Edición de niños y consentimiento exclusivo de padres
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 09, SPEC 10, SPEC 11, SPEC 12, SPEC 13, SPEC 14
 > **Fecha:** 2026-10-27
 > **Objetivo:** Permitir al personal editar los datos iniciales de los niños sin poder cambiar el consentimiento de fotos, reservado a sus padres vinculados.
